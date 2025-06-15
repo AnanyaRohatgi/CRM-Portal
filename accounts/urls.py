@@ -14,4 +14,6 @@ urlpatterns = [
     path('download/approve/<uuid:token>/', views.approve_download, name='approve_download'),
     path('download/reject/<uuid:token>/', views.reject_download, name='reject_download'),
     path('delete_all/', views.delete_all_accounts, name='delete_all_accounts'),
+    path('delete/<int:contact_id>/', views.delete_account, name='delete_account'),
+    path('delete-all/', views.delete_all_accounts, name='delete_all_accounts'),
 ]

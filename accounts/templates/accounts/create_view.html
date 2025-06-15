@@ -1,0 +1,15 @@
+<h2>Create New Bookmark View</h2>
+
+<form method="post">
+  {% csrf_token %}
+  <label>View Name:</label>
+  <input type="text" name="view_name" required><br><br>
+
+  <label>Select Fields:</label><br>
+  {% for field in all_fields %}
+    <input type="checkbox" name="fields" value="{{ field }}"> {{ field|capfirst|replace:"_" " " }}<br>
+  {% endfor %}
+
+  <br>
+  <button type="submit">Save View</button>
+</form>

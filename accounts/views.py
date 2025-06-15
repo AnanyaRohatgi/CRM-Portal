@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from .models import Account
@@ -14,55 +14,69 @@ from .models import DownloadRequest
 from datetime import datetime
 from django.core.paginator import Paginator
 from django.db.models import Q
+from .decorators import staff_approved_required 
 
 import csv
 import io
 
 def signup_view(request):
     if request.method == 'POST':
+        print("POST received")
         username = request.POST.get('username')
+        email = request.POST.get('email')
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
-        email = request.POST.get('email')
         password = request.POST.get('password')
 
-        # Check if username or email already exists
+        print(f"Received username: {username}, email: {email}")
+
         if User.objects.filter(username=username).exists():
+            print("Username already exists")
             messages.error(request, 'Username already exists.')
             return redirect('signup')
 
         if User.objects.filter(email=email).exists():
+            print("Email already exists")
             messages.error(request, 'Email already registered.')
             return redirect('signup')
 
-        # Create the user
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            first_name=first_name,
-            last_name=last_name
-        )
+        try:
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name
+            )
+            user.save()
+            print(f"User {username} created successfully!")
+        except Exception as e:
+            print(f"ERROR while creating user: {e}")
+            messages.error(request, 'An error occurred while creating the user.')
+            return redirect('signup')
 
         messages.success(request, 'Account created successfully. Please log in.')
         return redirect('login')
-    
+
     return render(request, 'accounts/signup.html')
 
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
+        
+        print(f"Login attempt - Username: {username}")
 
-        try:
-            user = User.objects.get(username=username)
-            if password == user.password:
-                login(request, user)            
-                return redirect('setup')
-            else:
-                messages.error(request, 'Incorrect password.')
-        except User.DoesNotExist:
-            messages.error(request, 'User not found.')
+        # Use Django's built-in authentication system
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            print(f"✅ Login successful for user: {username}")
+            return redirect('setup')
+        else:
+            print(f"❌ Login failed for user: {username}")
+            messages.error(request, 'Invalid username or password.')
 
     return render(request, 'accounts/index.html')
 
@@ -451,17 +465,19 @@ def setup_view(request):
 
     return render(request, "accounts/setup.html", {'accounts': accounts})
 
-def delete_all_accounts(request):
-    if request.method == 'POST':
-        Account.objects.all().delete()
-        messages.success(request, "All accounts have been deleted.")
-    return redirect('preview')  # redirect back to preview page
-
+@staff_approved_required  # Make sure this decorator is here
 def delete_account(request, contact_id):
     if request.method == 'POST':
         account = get_object_or_404(Account, contact_id=contact_id)
         account.delete()
         messages.success(request, "Account deleted successfully.")
+    return redirect('preview')
+
+@staff_approved_required  # Make sure this decorator is here  
+def delete_all_accounts(request):
+    if request.method == 'POST':
+        Account.objects.all().delete()
+        messages.success(request, "All accounts have been deleted.")
     return redirect('preview')
 
 def update_account(request, pk):

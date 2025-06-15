@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const select = document.getElementById("accountSelect");
     const contactId = select.value;
     if (contactId) {
-      window.location.href = `/setup/update/${contactId}/`;
+      window.location.href = `/update/${contactId}/`;
     }
   };
 
