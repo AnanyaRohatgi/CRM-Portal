@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib import messages
@@ -577,27 +578,39 @@ def download_accounts_csv(request):
 
 def request_download(request):
     if request.method == "POST":
-        download_request = DownloadRequest.objects.create(requested_by=request.user.email)
+        try:
+            download_request = DownloadRequest.objects.create(requested_by=request.user.email)
 
-        approve_link = request.build_absolute_uri(reverse("approve_download", args=[download_request.token]))
-        reject_link = request.build_absolute_uri(reverse("reject_download", args=[download_request.token]))
+            approve_link = request.build_absolute_uri(reverse("approve_download", args=[download_request.token]))
+            reject_link = request.build_absolute_uri(reverse("reject_download", args=[download_request.token]))
 
-        email_body = render_to_string("accounts/approval_email.html", {
-            "approve_link": approve_link,
-            "reject_link": reject_link,
-            "user_email": request.user.email
-        })
+            email_body = render_to_string("accounts/approval_email.html", {
+                "approve_link": approve_link,
+                "reject_link": reject_link,
+                "user_email": request.user.email
+            })
 
-        send_mail(
-            subject="Approval Needed: CSV Download Request",
-            message="",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=["ananya.r@iconresources.com"],
-            html_message=email_body
-        )
+            send_mail(
+                subject="Approval Needed: CSV Download Request",
+                message="",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=["ananya.r@iconresources.com"],
+                html_message=email_body
+            )
 
-        messages.success(request, "Your download request has been sent for approval. You will receive an email with the download link once approved.")
-        return redirect('preview')
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True})
+            
+            messages.success(request, "Your download request has been sent for approval. You will receive an email with the download link once approved.")
+            return redirect('preview')
+        except Exception as e:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'error': str(e)}, status=400)
+            
+            messages.error(request, f"Error submitting request: {str(e)}")
+            return redirect('preview')
+
+    return redirect('preview')
 
 
 def approve_download(request, token):

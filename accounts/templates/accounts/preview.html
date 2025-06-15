@@ -367,6 +367,55 @@
             padding: 20px;
             color: #6c757d;
         }
+
+        /* Modal styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+  }
+  
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 80%;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .close-modal {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .close-modal:hover {
+    color: black;
+  }
+  
+  .modal-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 15px;
+  }
+  
+  .modal-btn:hover {
+    background-color: #0056b3;
+  }
     </style>
 </head>
 <body>
@@ -446,9 +495,7 @@
                         {% for account in accounts %}
                         <tr>
                             <td>{{ account.contact_id }}</td>
-                            <td>
-                                {{ account.salutation }} {{ account.first_name }} {{ account.last_name }}
-                            </td>
+                            <td>{{ account.salutation }} {{ account.first_name }} {{ account.last_name }}</td>
                             <td class="address-cell">{{ account.title|truncatechars:50 }}</td>
                             <td class="email-cell">{{ account.email|default:"—" }}</td>
                             <td>{{ account.phone|default:"—" }}</td>
@@ -458,7 +505,7 @@
                             <td>{{ account.region|default:"—" }}</td>
                             <td>{{ account.account_owner|truncatechars:30 }}</td>
                             <td>{{ account.account_owner_alias }}</td>
-      <td>{{ account.salesperson_sf_id }}</td>
+                            <td>{{ account.salesperson_sf_id }}</td>
                             <td>{{ account.account_created_date|date:"Y-m-d"|default:"—" }}</td>
                             <td>{{ account.last_updated|date:"Y-m-d"|default:"—" }}</td>
                             <td>
@@ -544,7 +591,17 @@
             <a href="{% url 'setup' %}" style="color: #007bff; text-decoration: none; font-weight: bold;">← Back to Setup</a>
         </div>
     </div>
-    
+
+    <div id="downloadModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <span class="close-modal">&times;</span>
+    <h3>Download Request Sent</h3>
+    <p>Your request to download the CSV file has been sent to the admin for approval.</p>
+    <p>Please wait until your request is approved or rejected. You will receive an email notification.</p>
+    <button id="modal-ok-btn" class="modal-btn">OK</button>
+  </div>
+</div>
+
     <script>
         // YOUR EXISTING JAVASCRIPT REMAINS THE SAME
         document.querySelector('input[name="search"]').addEventListener('input', function(e) {
@@ -737,6 +794,65 @@
                 row.style.display = '';
             });
         }
+
+         document.addEventListener('DOMContentLoaded', function() {
+    const downloadForm = document.querySelector('form[action="{% url 'request_download' %}"]');
+    const modal = document.getElementById('downloadModal');
+    const closeModal = document.querySelector('.close-modal');
+    const okBtn = document.getElementById('modal-ok-btn');
+    
+    if (downloadForm) {
+      downloadForm.addEventListener('submit', function(e) {
+        // Prevent default form submission
+        e.preventDefault();
+        
+        // Show the modal
+        modal.style.display = 'block';
+        
+        // Submit the form in the background
+        fetch(this.action, {
+          method: 'POST',
+          body: new FormData(this),
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            // Success - modal already shown
+          } else {
+            // Handle error case if needed
+            console.error('Error submitting download request');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      });
+    }
+    
+    // Close modal when clicking X or OK button
+    closeModal.addEventListener('click', function() {
+      modal.style.display = 'none';
+    });
+    
+    okBtn.addEventListener('click', function() {
+      modal.style.display = 'none';
+    });
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+  });
     </script>
 </body>
 </html>
