@@ -474,54 +474,55 @@
             <table>
                 <thead>
                     <tr>
-                        <th class="filter-header">ID<span class="filter-arrow"></span></th>
-                        <th class="filter-header">Name<span class="filter-arrow"></span></th>
-                        <th class="filter-header">Title<span class="filter-arrow"></span></th>
-                        <th class="filter-header">Email<span class="filter-arrow"></span></th>
-                        <th class="filter-header">Phone<span class="filter-arrow"></span></th>
-                        <th class="filter-header">Mobile<span class="filter-arrow"></span></th>
-                        <th class="filter-header">Account Name<span class="filter-arrow"></span></th>
-                        <th class="filter-header">City<span class="filter-arrow"></span></th>
-                        <th class="filter-header">Region<span class="filter-arrow"></span></th>
-                        <th class="filter-header">Account Owner<span class="filter-arrow"></span></th>
-                        <th class="filter-header">Account Owner Alias<span class="filter-arrow"></span></th>
-                        <th class="filter-header">Salesperson SF ID<span class="filter-arrow"></span></th>
-                        <th class="filter-header">Created<span class="filter-arrow"></span></th>
-                        <th class="filter-header">Updated<span class="filter-arrow"></span></th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                    <tbody>
-                        {% for account in accounts %}
-                        <tr>
-                            <td>{{ account.contact_id }}</td>
-                            <td>{{ account.salutation }} {{ account.first_name }} {{ account.last_name }}</td>
-                            <td class="address-cell">{{ account.title|truncatechars:50 }}</td>
-                            <td class="email-cell">{{ account.email|default:"—" }}</td>
-                            <td>{{ account.phone|default:"—" }}</td>
-                            <td>{{ account.mobile|default:"—" }}</td>
-                            <td class="address-cell">{{ account.account_name|truncatechars:40 }}</td>
-                            <td>{{ account.mailing_city|default:"—" }}</td>
-                            <td>{{ account.region|default:"—" }}</td>
-                            <td>{{ account.account_owner|truncatechars:30 }}</td>
-                            <td>{{ account.account_owner_alias }}</td>
-                            <td>{{ account.salesperson_sf_id }}</td>
-                            <td>{{ account.account_created_date|date:"Y-m-d"|default:"—" }}</td>
-                            <td>{{ account.last_updated|date:"Y-m-d"|default:"—" }}</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <a href="{% url 'update_account' account.pk %}" class="btn-small btn-edit">Edit</a>
-                                    <form method="POST" action="{% url 'delete_account' account.contact_id %}" 
-                                          style="display: inline;" 
-                                          onsubmit="return confirm('Delete this account?')">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn-small btn-delete">Del</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
+        <th class="filter-header">ID<span class="filter-arrow"></span></th>
+        <th class="filter-header">Name<span class="filter-arrow"></span></th>
+        <th class="filter-header">Title<span class="filter-arrow"></span></th>
+        <th class="filter-header">Email<span class="filter-arrow"></span></th>
+        <th class="filter-header">Phone<span class="filter-arrow"></span></th>
+        <th class="filter-header">Mobile<span class="filter-arrow"></span></th>
+        <th class="filter-header">Created<span class="filter-arrow"></span></th> <!-- Moved here -->
+        <th class="filter-header">City<span class="filter-arrow"></span></th>
+        <th class="filter-header">Region<span class="filter-arrow"></span></th>
+        <th class="filter-header">Account Owner<span class="filter-arrow"></span></th>
+        <th class="filter-header">Account Owner Alias<span class="filter-arrow"></span></th>
+        <th class="filter-header">Salesperson SF ID<span class="filter-arrow"></span></th>
+        <th class="filter-header">Account Name<span class="filter-arrow"></span></th> <!-- Moved down -->
+        <th class="filter-header">Updated<span class="filter-arrow"></span></th>
+        <th>Actions</th>
+    </tr>
+</thead>
+<tbody>
+    {% for account in accounts %}
+    <tr>
+        <td>{{ account.contact_id }}</td>
+        <td>{{ account.salutation }} {{ account.first_name }} {{ account.last_name }}</td>
+        <td class="address-cell">{{ account.title|truncatechars:50 }}</td>
+        <td class="email-cell">{{ account.email|default:"—" }}</td>
+        <td>{{ account.phone|default:"—" }}</td>
+        <td>{{ account.mobile|default:"—" }}</td>
+        <td>{{ account.account_created_date|date:"Y-m-d"|default:"—" }}</td> <!-- Moved here -->
+        <td>{{ account.mailing_city|default:"—" }}</td>
+        <td>{{ account.region|default:"—" }}</td>
+        <td>{{ account.account_owner|truncatechars:30 }}</td>
+        <td>{{ account.account_owner_alias }}</td>
+        <td>{{ account.salesperson_sf_id }}</td>
+        <td class="address-cell">{{ account.account_name|truncatechars:40 }}</td> <!-- Moved down -->
+        <td>{{ account.last_updated|date:"Y-m-d"|default:"—" }}</td>
+        <td>
+            <div class="action-buttons">
+                <a href="{% url 'update_account' account.pk %}" class="btn-small btn-edit">Edit</a>
+                <form method="POST" action="{% url 'delete_account' account.contact_id %}" 
+                      style="display: inline;" 
+                      onsubmit="return confirm('Delete this account?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-small btn-delete">Del</button>
+                </form>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+
                 </table>
             </div>
 

@@ -2,8 +2,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.login_view, name='login'),
-    path('setup/', views.setup_view, name='setup'),  # Only one instance
+    path('', views.signup_view, name='signup'),  # Changed: signup is now the root/first page
+    path('login/', views.login_view, name='login'),  # Added: login now has its own path
+    path('setup/', views.setup_view, name='setup'),
     path('preview/', views.preview_view, name='preview'),
     path('delete/<int:contact_id>/', views.delete_account, name='delete_account'),
     path('update/<int:pk>/', views.update_account, name='update_account'),
