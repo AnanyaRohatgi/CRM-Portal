@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Home - Review & Start Import</title>
+  <link rel="stylesheet" href="{% static 'accounts/home.css' %}" />
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <div class="top-nav">
+    <a href="{% url 'setup' %}" class="nav-button">Setup</a>
+    <a href="#" class="nav-button active">Home</a>
+    <a href="#" class="nav-button">Object Manager</a>
+  </div>
+
+  <!-- Heading Section -->
+  <div class="main-header">
+    <h1>Review & Start Import</h1>
+    <p>Review your import information and click start import</p>
+  </div>
+
+  <!-- Info Boxes Section -->
+  <div class="info-boxes">
+    <div class="info-box">
+      <h3>Your selections</h3>
+      <p>Example: You selected Standard Objects and Add new + update existing records.</p>
+    </div>
+    <div class="info-box">
+      <h3>Your import will include:</h3>
+      <p>Example: Accounts and Contacts with matching on Email and Account ID.</p>
+    </div>
+    <div class="info-box">
+      <h3>Your import will not include:</h3>
+      <p>Example: Unmatched records or those with missing key fields.</p>
+    </div>
+  </div>
+
+  <!-- Start Import Button -->
+  <div class="start-import-container">
+    <button class="start-import-button" onclick="startImport()">Start Import</button>
+  </div>
+
+  <script src="{% static 'accounts/home.js' %}"></script>
+</body>
+</html>

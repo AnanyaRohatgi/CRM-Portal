@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IRT CRM Central - Login</title>
+  <link rel="stylesheet" href="{% static 'accounts/style.css' %}"/>
+</head>
+<body>
+  <header class="top-bar">
+    <img src="{% static 'accounts/icon-logo.png' %}" alt="Logo" class="logo"/>
+    <h1>IRT CRM Central</h1>
+  </header>
+
+  <div class="login-container">
+    <div class="login-box">
+      <div class="left-panel">
+        <img src="{% static 'accounts/skyscrapper updated.jpg' %}" alt="Building" class="bg-image"/>
+        <div class="welcome-text">
+          Welcome to <br/>IRT CRM Central
+        </div>
+      </div>
+      <div class="right-panel">
+        <h2>Sign in to your account</h2>
+        <form method="POST">
+          {% csrf_token %}
+          <input type="text" name="username" placeholder="Username" required />
+          <input type="password" name="password" placeholder="Password" required />
+          <button type="submit">Login</button>
+
+          {% if error %}
+            <p style="color: red; margin-top: 10px;">{{ error }}</p>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'accounts/script.js' %}"></script>
+</body>
+</html>

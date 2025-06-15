@@ -1,0 +1,217 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Salesforce Data Import UI</title>
+  <link rel="stylesheet" href="{% static 'accounts/setup.css' %}" />
+</head>
+<body>
+
+  <div class="top-nav">
+    <a href="#" class="nav-button active">Setup</a>
+    <a href="{% url 'home' %}" class="nav-button">Home</a>
+    <a href="#" class="nav-button">Object Manager</a>
+  </div>
+
+
+  <div class="container">
+   <h2 style="margin-bottom: 24px;">Import your Data into IRT CRM Central</h2>
+ 
+
+    <div class="sections-wrapper">
+      <div class="section">
+        <h4 class="section-heading">What do you want to do?</h4>
+        <div class="box">
+          <div class="option-group" id="action-buttons">
+            <button class="option" id="addBtn">Add new records</button>
+           <button class="option" id="updateBtn" type="button" onclick="showUpdateDropdown()">Update existing records</button>
+
+          </div>
+
+          <form method="get" id="updateForm" style="display: none; margin-top: 20px;">
+  <label for="accountSelect">Select account to update:</label>
+  <select name="account_id" id="accountSelect" onchange="goToUpdatePage()">
+    <option value="">-- Select Account --</option>
+    {% for acc in accounts %}
+      <option value="{{ acc.contact_id }}">[{{ acc.contact_id }}] {{ acc.first_name }} {{ acc.last_name }}</option>
+    {% endfor %}
+  </select>
+</form>
+
+          <form id="add-records-form" method="post" action="/setup/setup/">
+  {% csrf_token %}
+  
+  <div class="form-row">
+    <div class="form-group">
+      <label>Salutation:</label>
+      <select name="salutation">
+        <option value="">Select</option>
+        <option value="MR">MR</option>
+        <option value="MS">MS</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label>First name:</label>
+      <input type="text" name="first_name">
+    </div>
+
+    <div class="form-group">
+      <label>Last name:</label>
+      <input type="text" name="last_name">
+    </div>
+
+    <div class="form-group">
+      <label>Title:</label>
+      <input type="text" name="title">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Mailing street:</label>
+      <input type="text" name="mailing_street">
+    </div>
+
+    <div class="form-group">
+      <label>Mailing city:</label>
+      <input type="text" name="mailing_city">
+    </div>
+
+    <div class="form-group">
+      <label>Mailing state:</label>
+      <input type="text" name="mailing_state">
+    </div>
+
+    <div class="form-group">
+      <label>Mailing country:</label>
+      <input type="text" name="mailing_country">
+    </div>
+
+    <div class="form-group">
+      <label>Postal code:</label>
+      <input type="text" name="mailing_zip">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Phone No:</label>
+      <input type="text" name="phone">
+    </div>
+
+    <div class="form-group">
+      <label>Account phone:</label>
+      <input type="text" name="account_phone">
+    </div>
+
+    <div class="form-group">
+      <label>Email ID:</label>
+      <input type="email" name="email">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Account ID:</label>
+      <input type="text" name="account_id">
+    </div>
+
+    <div class="form-group">
+      <label>FAX:</label>
+      <input type="text" name="fax">
+    </div>
+
+    <div class="form-group">
+      <label>Account owner:</label>
+      <input type="text" name="account_owner">
+    </div>
+
+    <div class="form-group">
+      <label>Account owner alias:</label>
+      <input type="text" name="account_owner_alias">
+    </div>
+
+    <div class="form-group">
+      <label>Account name:</label>
+      <input type="text" name="account_name">
+    </div>
+
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Salesperson SF ID:</label>
+      <input type="text" name="salesperson_sf_id">
+    </div>
+
+       <div class="form-group">
+      <label>Region:</label>
+      <select id="region" name="region" required>
+  <option value="">-- Select Region --</option>
+  <option value="India">India</option>
+  <option value="Singapore">Singapore</option>
+      </select>
+    </div>
+
+    {% comment %}
+      <div class="form-group">
+        <label>Serial key:</label>
+        <input type="text" name="serial_key">
+      </div>
+    {% endcomment %}
+
+    <div class="form-group">
+      <label>Timestamp:</label>
+      <input
+  type="datetime-local"
+  name="last_updated"
+  id="last_updated"
+ 
+/>
+   </div>
+  </div>
+
+     <div class="form-group">
+      <label>Account creation date:</label>
+      <input
+  type="date"
+  name="account_created_date"
+  id="account_created_date"
+  
+/>
+    </div>
+  </div>
+
+  <button type="submit">Submit</button>
+</form>
+
+        </div>
+      </div>
+
+      <form method="post" enctype="multipart/form-data" action="/setup/setup/">
+          {% csrf_token %}
+      <div class="section">
+        <h4 class="section-heading">Where is your data located?</h4>
+        <div class="box">
+          <div class="upload-box" id="drop-zone">
+            <p>Drag CSV file here to upload</p>
+          </div>
+          <input type="file" id="file-input" name="csv_file" accept=".csv" style="display: none;" />
+          <div class="upload-options">
+  <button class="upload-btn" id="csv-upload-btn">📄 CSV</button>
+  <button type="submit" class="upload-btn">⬆️ Upload</button> <!-- 👈 new location -->
+</div>
+
+        </div>
+      </div>
+    </div>
+    </form>
+    <div class="preview-container">
+      <a href="{% url 'preview' %}" class="preview-button">Preview</a>
+    </div>
+  </div>
+
+  <script src="{% static 'accounts/setup.js' %}"></script>
+</body>
+</html>

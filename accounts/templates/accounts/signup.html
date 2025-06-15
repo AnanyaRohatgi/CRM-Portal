@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sign Up - IRT CRM Central</title>
+  <link rel="stylesheet" href="{% static 'accounts/signup.css' %}">
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <img src="{% static 'accounts/logo.png' %}" class="logo" alt="Logo">
+    <h1>IRT CRM Central</h1>
+  </div>
+
+  <!-- Signup Container -->
+  <div class="signup-container">
+    <div class="signup-box">
+
+      <!-- Left Panel -->
+      <div class="left-panel">
+        <img src="{% static 'accounts/signup-image.jpg' %}" class="bg-image" alt="Signup">
+        <div class="welcome-text">Welcome to IRT CRM Central</div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="right-panel">
+        <h2>Sign up your account</h2>
+        <form method="post">
+          {% csrf_token %}
+          <input type="text" name="username" placeholder="Username" required>
+          <input type="text" name="first_name" placeholder="First Name" required>
+          <input type="text" name="last_name" placeholder="Last Name" required>
+          <input type="email" name="email" placeholder="Email ID" required>
+          <input type="password" name="password" placeholder="Password" required>
+          <button type="submit">Sign Up</button>
+        </form>
+        <div class="login-redirect">
+          Already have an account? <a href="{% url 'login' %}">Sign In</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

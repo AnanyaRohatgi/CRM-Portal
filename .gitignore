@@ -1,0 +1,15 @@
+.env
+
+# Python/Django
+__pycache__/
+*.py[cod]
+*.sqlite3
+db.sqlite3
+*.log
+
+# Node/JS
+node_modules/
+
+# System files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts Preview</title>
+     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        /* Search and controls section */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-form input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 250px;
+        }
+        
+        .search-form button {
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .search-form button:hover {
+            background: #0056b3;
+        }
+        
+        .clear-search {
+            padding: 8px 16px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .clear-search:hover {
+            background: #545b62;
+        }
+        
+        /* Stats section */
+        .stats {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .stats strong {
+            color: #495057;
+            font-size: 16px;
+        }
+        
+        /* Table styles */
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            font-size: 13px;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .email-cell {
+            max-width: 200px;
+            word-break: break-all;
+        }
+        
+        .address-cell {
+            max-width: 150px;
+            word-wrap: break-word;
+        }
+        
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-edit {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-small:hover {
+            opacity: 0.8;
+        }
+        
+        /* Pagination styles */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .pagination {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            gap: 5px;
+        }
+        
+        .pagination li {
+            display: inline;
+        }
+        
+        .pagination a, .pagination span {
+            display: inline-block;
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            color: #007bff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .pagination a:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .pagination .current {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .pagination .disabled {
+            color: #6c757d;
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+            cursor: not-allowed;
+        }
+        
+        .page-info {
+            font-size: 14px;
+            color: #6c757d;
+            margin: 0 15px;
+        }
+        
+        /* Bulk actions */
+        .bulk-actions {
+            margin-bottom: 20px;
+        }
+        
+        .bulk-actions form {
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        .bulk-actions button {
+            padding: 10px 20px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .bulk-actions button:hover {
+            background: #c82333;
+        }
+        
+        .download-btn {
+            background: #28a745 !important;
+        }
+        
+        .download-btn:hover {
+            background: #218838 !important;
+        }
+        .filter-header {
+            position: relative;
+            cursor: pointer;
+            padding-right: 20px !important;
+        }
+        
+        .filter-header:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .filter-arrow {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #666;
+        }
+        
+        .filter-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .filter-dropdown input[type="text"] {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 5px;
+            box-sizing: border-box;
+        }
+        
+        .filter-dropdown ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .filter-dropdown li {
+            padding: 5px;
+            cursor: pointer;
+        }
+        
+        .filter-dropdown li:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .filter-dropdown li.selected {
+            background-color: #e0e0e0;
+        }
+        
+        .filter-dropdown button {
+            margin-top: 5px;
+            padding: 5px 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        .filter-dropdown button:hover {
+            background: #0056b3;
+        }
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-form {
+                flex-direction: column;
+            }
+            
+            .search-form input {
+                min-width: auto;
+            }
+            
+            .pagination-container {
+                flex-direction: column;
+            }
+            
+            .pagination {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+        
+        /* No results message */
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-size: 16px;
+        }
+        
+        /* Loading indicator */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Accounts Preview</h1>
+        
+        <!-- Controls section -->
+        <div class="controls">
+            <form class="search-form" method="GET">
+                <input type="text" 
+                       name="search" 
+                       placeholder="Search by name, email, account, or phone..." 
+                       value="{{ search_query }}"
+                       autocomplete="off">
+                <button type="submit"> Search</button>
+                {% if search_query %}
+                    <a href="{% url 'preview' %}" class="clear-search">Clear</a>
+                {% endif %}
+                <!-- Preserve page parameter if searching -->
+                {% if request.GET.page and not search_query %}
+                    <input type="hidden" name="page" value="{{ request.GET.page }}">
+                {% endif %}
+            </form>
+        </div>
+        
+        <!-- Stats section -->
+        <div class="stats">
+            <strong>
+                {% if search_query %}
+                    Showing {{ accounts|length }} of {{ total_accounts }} accounts (filtered by "{{ search_query }}")
+                {% else %}
+                    Total Accounts: {{ total_accounts }}
+                {% endif %}
+                | Page {{ current_page }} of {{ total_pages }}
+            </strong>
+        </div>
+        
+        <!-- Bulk actions -->
+        <div class="bulk-actions">
+            <form method="POST" action="{% url 'request_download' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="download-btn"> Request CSV Download</button>
+            </form>
+            
+            <form method="POST" action="{% url 'delete_all_accounts' %}" 
+                  onsubmit="return confirm('Are you sure you want to delete ALL accounts? This cannot be undone!')" 
+                  style="display: inline;">
+                {% csrf_token %}
+                <button type="submit"> Delete All Accounts</button>
+            </form>
+        </div>
+        
+        <!-- Table -->
+        {% if accounts %}
+             <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="filter-header">ID<span class="filter-arrow"></span></th>
+                        <th class="filter-header">Name<span class="filter-arrow"></span></th>
+                        <th class="filter-header">Title<span class="filter-arrow"></span></th>
+                        <th class="filter-header">Email<span class="filter-arrow"></span></th>
+                        <th class="filter-header">Phone<span class="filter-arrow"></span></th>
+                        <th class="filter-header">Mobile<span class="filter-arrow"></span></th>
+                        <th class="filter-header">Account Name<span class="filter-arrow"></span></th>
+                        <th class="filter-header">City<span class="filter-arrow"></span></th>
+                        <th class="filter-header">Region<span class="filter-arrow"></span></th>
+                        <th class="filter-header">Account Owner<span class="filter-arrow"></span></th>
+                        <th class="filter-header">Account Owner Alias<span class="filter-arrow"></span></th>
+                        <th class="filter-header">Salesperson SF ID<span class="filter-arrow"></span></th>
+                        <th class="filter-header">Created<span class="filter-arrow"></span></th>
+                        <th class="filter-header">Updated<span class="filter-arrow"></span></th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                    <tbody>
+                        {% for account in accounts %}
+                        <tr>
+                            <td>{{ account.contact_id }}</td>
+                            <td>
+                                {{ account.salutation }} {{ account.first_name }} {{ account.last_name }}
+                            </td>
+                            <td class="address-cell">{{ account.title|truncatechars:50 }}</td>
+                            <td class="email-cell">{{ account.email|default:"—" }}</td>
+                            <td>{{ account.phone|default:"—" }}</td>
+                            <td>{{ account.mobile|default:"—" }}</td>
+                            <td class="address-cell">{{ account.account_name|truncatechars:40 }}</td>
+                            <td>{{ account.mailing_city|default:"—" }}</td>
+                            <td>{{ account.region|default:"—" }}</td>
+                            <td>{{ account.account_owner|truncatechars:30 }}</td>
+                            <td>{{ account.account_owner_alias }}</td>
+      <td>{{ account.salesperson_sf_id }}</td>
+                            <td>{{ account.account_created_date|date:"Y-m-d"|default:"—" }}</td>
+                            <td>{{ account.last_updated|date:"Y-m-d"|default:"—" }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'update_account' account.pk %}" class="btn-small btn-edit">Edit</a>
+                                    <form method="POST" action="{% url 'delete_account' account.contact_id %}" 
+                                          style="display: inline;" 
+                                          onsubmit="return confirm('Delete this account?')">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-small btn-delete">Del</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PAGINATION SECTION - ADD THIS -->
+            {% if accounts.paginator.num_pages > 1 %}
+                <div class="pagination-container">
+                    <ul class="pagination">
+                        <!-- First page -->
+                        {% if accounts.number > 3 %}
+                            <li><a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">1</a></li>
+                            {% if accounts.number > 4 %}
+                                <li><span class="disabled">...</span></li>
+                            {% endif %}
+                        {% endif %}
+                        
+                        <!-- Previous page -->
+                        {% if accounts.has_previous %}
+                            <li><a href="?page={{ accounts.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">‹ Prev</a></li>
+                        {% else %}
+                            <li><span class="disabled">‹ Prev</span></li>
+                        {% endif %}
+                        
+                        <!-- Page numbers -->
+                        {% for page_num in page_range %}
+                            {% if page_num == accounts.number %}
+                                <li><span class="current">{{ page_num }}</span></li>
+                            {% else %}
+                                <li><a href="?page={{ page_num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ page_num }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <!-- Next page -->
+                        {% if accounts.has_next %}
+                            <li><a href="?page={{ accounts.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Next ›</a></li>
+                        {% else %}
+                            <li><span class="disabled">Next ›</span></li>
+                        {% endif %}
+                        
+                        <!-- Last page -->
+                        {% if accounts.number < accounts.paginator.num_pages|add:"-2" %}
+                            {% if accounts.number < accounts.paginator.num_pages|add:"-3" %}
+                                <li><span class="disabled">...</span></li>
+                            {% endif %}
+                            <li><a href="?page={{ accounts.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ accounts.paginator.num_pages }}</a></li>
+                        {% endif %}
+                    </ul>
+                    
+                    <div class="page-info">
+                        Showing {{ accounts.start_index }}-{{ accounts.end_index }} of {{ accounts.paginator.count }} accounts
+                    </div>
+                </div>
+            {% endif %}
+            <!-- END PAGINATION SECTION -->
+
+        {% else %}
+            <div class="no-results">
+                {% if search_query %}
+                    No accounts found matching "{{ search_query }}". <a href="{% url 'preview' %}">Show all accounts</a>
+                {% else %}
+                    No accounts found. <a href="{% url 'setup' %}">Add some accounts</a>
+                {% endif %}
+            </div>
+        {% endif %}
+        
+        <!-- Back to setup -->
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6;">
+            <a href="{% url 'setup' %}" style="color: #007bff; text-decoration: none; font-weight: bold;">← Back to Setup</a>
+        </div>
+    </div>
+    
+    <script>
+        // YOUR EXISTING JAVASCRIPT REMAINS THE SAME
+        document.querySelector('input[name="search"]').addEventListener('input', function(e) {
+            clearTimeout(this.searchTimeout);
+            const form = this.closest('form');
+            this.searchTimeout = setTimeout(() => {
+                if (this.value.length > 2 || this.value.length === 0) {
+                    // Remove page parameter when searching
+                    const pageInput = form.querySelector('input[name="page"]');
+                    if (pageInput) pageInput.remove();
+                    form.submit();
+                }
+            }, 500);
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) return;
+            
+            switch(e.key) {
+                case 'ArrowLeft':
+                    {% if accounts.has_previous %}
+                        if (!e.target.matches('input, textarea')) {
+                            window.location.href = '?page={{ accounts.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}';
+                        }
+                    {% endif %}
+                    break;
+                case 'ArrowRight':
+                    {% if accounts.has_next %}
+                        if (!e.target.matches('input, textarea')) {
+                            window.location.href = '?page={{ accounts.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}';
+                        }
+                    {% endif %}
+                    break;
+            }
+        });
+        
+        // Focus search box with '/' key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '/' && !e.target.matches('input, textarea')) {
+                e.preventDefault();
+                document.querySelector('input[name="search"]').focus();
+            }
+        });
+         // Add this new filter functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add filter dropdowns
+            const filterHeaders = document.querySelectorAll('.filter-header');
+            
+            filterHeaders.forEach(header => {
+                const dropdown = document.createElement('div');
+                dropdown.className = 'filter-dropdown';
+                dropdown.style.display = 'none';
+                
+                // Add filter content
+                dropdown.innerHTML = `
+                    <input type="text" placeholder="Search...">
+                    <ul>
+                        <!-- Options will be populated dynamically -->
+                    </ul>
+                    <button class="apply-filter">Apply</button>
+                    <button class="clear-filter">Clear</button>
+                `;
+                
+                header.appendChild(dropdown);
+                
+                // Toggle dropdown
+                header.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('filter-arrow') || e.target === header) {
+                        const isVisible = dropdown.style.display === 'block';
+                        document.querySelectorAll('.filter-dropdown').forEach(d => {
+                            d.style.display = 'none';
+                        });
+                        dropdown.style.display = isVisible ? 'none' : 'block';
+                        
+                        if (!isVisible) {
+                            populateFilterOptions(header, dropdown);
+                        }
+                    }
+                });
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.filter-header')) {
+                    document.querySelectorAll('.filter-dropdown').forEach(d => {
+                        d.style.display = 'none';
+                    });
+                }
+            });
+            
+            // Keyboard shortcut (Ctrl+Shift+L)
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.shiftKey && e.key === 'L') {
+                    e.preventDefault();
+                    const firstFilter = document.querySelector('.filter-header');
+                    if (firstFilter) {
+                        const dropdown = firstFilter.querySelector('.filter-dropdown');
+                        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                        if (dropdown.style.display === 'block') {
+                            populateFilterOptions(firstFilter, dropdown);
+                        }
+                    }
+                }
+            });
+        });
+        
+        function populateFilterOptions(header, dropdown) {
+            const columnIndex = Array.from(header.parentNode.children).indexOf(header);
+            const table = header.closest('table');
+            const rows = table.querySelectorAll('tbody tr');
+            const uniqueValues = new Set();
+            
+            // Collect unique values from the column
+            rows.forEach(row => {
+                const cell = row.children[columnIndex];
+                let value = cell.textContent.trim();
+                
+                // Special handling for different data types
+                if (columnIndex === 0) { // ID column
+                    value = value || '(blank)';
+                } else if (columnIndex === 12 || columnIndex === 13) { // Date columns
+                    value = value || '(no date)';
+                } else {
+                    value = value || '(empty)';
+                }
+                
+                uniqueValues.add(value);
+            });
+            
+            // Populate the dropdown
+            const ul = dropdown.querySelector('ul');
+            ul.innerHTML = '';
+            
+            Array.from(uniqueValues).sort().forEach(value => {
+                const li = document.createElement('li');
+                li.textContent = value;
+                li.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                });
+                ul.appendChild(li);
+            });
+            
+            // Search functionality
+            const searchInput = dropdown.querySelector('input[type="text"]');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                Array.from(ul.children).forEach(li => {
+                    li.style.display = li.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+                });
+            });
+            
+            // Apply filter
+            dropdown.querySelector('.apply-filter').addEventListener('click', function() {
+                const selectedValues = Array.from(ul.querySelectorAll('.selected')).map(li => li.textContent);
+                applyColumnFilter(columnIndex, selectedValues);
+                dropdown.style.display = 'none';
+            });
+            
+            // Clear filter
+            dropdown.querySelector('.clear-filter').addEventListener('click', function() {
+                clearColumnFilter(columnIndex);
+                dropdown.style.display = 'none';
+            });
+        }
+        
+        function applyColumnFilter(columnIndex, selectedValues) {
+            const table = document.querySelector('table');
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const cell = row.children[columnIndex];
+                const value = cell.textContent.trim();
+                const displayValue = value || (columnIndex === 0 ? '(blank)' : 
+                                      (columnIndex === 12 || columnIndex === 13 ? '(no date)' : '(empty)'));
+                
+                if (selectedValues.length === 0 || selectedValues.includes(displayValue)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        function clearColumnFilter(columnIndex) {
+            const table = document.querySelector('table');
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                row.style.display = '';
+            });
+        }
+    </script>
+</body>
+</html>
