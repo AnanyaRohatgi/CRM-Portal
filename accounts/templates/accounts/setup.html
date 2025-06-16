@@ -10,9 +10,8 @@
 
   <div class="top-nav">
     <a href="#" class="nav-button active">Setup</a>
-    <a href="{% url 'home' %}" class="nav-button">Home</a>
-    <a href="#" class="nav-button">Object Manager</a>
   </div>
+
 
 
   <div class="container">
@@ -190,7 +189,7 @@
       </div>
 
       <form method="post" enctype="multipart/form-data" action="{% url 'setup' %}">
-          {% csrf_token %}
+ {% csrf_token %}
       <div class="section">
         <h4 class="section-heading">Where is your data located?</h4>
         <div class="box">

@@ -465,19 +465,19 @@ def setup_view(request):
 
     return render(request, "accounts/setup.html", {'accounts': accounts})
 
-@staff_approved_required  # Make sure this decorator is here
+@staff_approved_required
+def delete_all_accounts(request):
+    if request.method == 'POST':
+        Account.objects.all().delete()
+        messages.success(request, "All accounts have been deleted.")
+    return redirect('preview')  # redirect back to preview page
+
+@staff_approved_required
 def delete_account(request, contact_id):
     if request.method == 'POST':
         account = get_object_or_404(Account, contact_id=contact_id)
         account.delete()
         messages.success(request, "Account deleted successfully.")
-    return redirect('preview')
-
-@staff_approved_required  # Make sure this decorator is here  
-def delete_all_accounts(request):
-    if request.method == 'POST':
-        Account.objects.all().delete()
-        messages.success(request, "All accounts have been deleted.")
     return redirect('preview')
 
 def update_account(request, pk):
