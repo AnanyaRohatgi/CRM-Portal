@@ -11,7 +11,9 @@ SECRET_KEY = 'django-insecure-t1alhznz_-4^hbr(-9o&9$_-nge5j8v$g+(b(k8isg8@3-!6q3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['29tfsp1h-8000.inc1.devtunnels.ms', 'localhost', '127.0.0.1']
+
+SITE_URL = 'https://29tfsp1h-8000.inc1.devtunnels.ms'
 
 # Application definition
 INSTALLED_APPS = [

@@ -189,7 +189,8 @@
       </div>
 
       <form method="post" enctype="multipart/form-data" action="{% url 'setup' %}">
- {% csrf_token %}
+
+          {% csrf_token %}
       <div class="section">
         <h4 class="section-heading">Where is your data located?</h4>
         <div class="box">

@@ -328,6 +328,105 @@
         .filter-dropdown button:hover {
             background: #0056b3;
         }
+
+        /* Add these styles to your CSS */
+.filter-header.active-filter {
+    position: relative;
+    background-color: #f0f7ff;
+}
+
+.filter-header.active-filter::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #4a90e2;
+}
+
+{% comment %} .filter-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #4a90e2;
+    color: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+} {% endcomment %}
+.filter-search {
+    position: relative;
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.filter-search-input {
+    width: 100%;
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.selected-count {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: #666;
+}
+
+.filter-options {
+    max-height: 200px;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.filter-options li {
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.filter-options li:hover {
+    background-color: #f5f5f5;
+}
+
+.filter-options li.selected {
+    background-color: #e6f2ff;
+}
+
+.filter-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    border-top: 1px solid #eee;
+}
+
+.filter-actions button {
+    flex: 1;
+    margin: 0 4px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.filter-actions .apply-filter {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.filter-actions .clear-filter {
+    background-color: #f5f5f5;
+    color: #333;
+}
         /* Responsive design */
         @media (max-width: 768px) {
             .controls {
@@ -467,6 +566,10 @@
                 <button type="submit"> Delete All Accounts</button>
             </form>
         </div>
+
+        <div class="filter-controls">
+    <button id="clear-all-filters" class="btn-small">Clear All Filters</button>
+</div>
         
         <!-- Table -->
         {% if accounts %}
@@ -604,6 +707,8 @@
 </div>
 
     <script>
+
+        const activeFilters = {};
         // YOUR EXISTING JAVASCRIPT REMAINS THE SAME
         document.querySelector('input[name="search"]').addEventListener('input', function(e) {
             clearTimeout(this.searchTimeout);
@@ -658,14 +763,18 @@
                 dropdown.style.display = 'none';
                 
                 // Add filter content
-                dropdown.innerHTML = `
-                    <input type="text" placeholder="Search...">
-                    <ul>
-                        <!-- Options will be populated dynamically -->
-                    </ul>
-                    <button class="apply-filter">Apply</button>
-                    <button class="clear-filter">Clear</button>
-                `;
+               // Modify the dropdown creation code
+dropdown.innerHTML = `
+    <div class="filter-header">
+        <input type="text" placeholder="Search...">
+        <div class="selected-count">0 selected</div>
+        <ul>
+            <!-- Options will be populated dynamically -->
+        </ul>
+        <button class="apply-filter">Apply</button>
+        <button class="clear-filter">Clear</button>
+    </div>
+`;
                 
                 header.appendChild(dropdown);
                 
@@ -711,90 +820,169 @@
         });
         
         function populateFilterOptions(header, dropdown) {
-            const columnIndex = Array.from(header.parentNode.children).indexOf(header);
-            const table = header.closest('table');
-            const rows = table.querySelectorAll('tbody tr');
-            const uniqueValues = new Set();
-            
-            // Collect unique values from the column
-            rows.forEach(row => {
-                const cell = row.children[columnIndex];
-                let value = cell.textContent.trim();
-                
-                // Special handling for different data types
-                if (columnIndex === 0) { // ID column
-                    value = value || '(blank)';
-                } else if (columnIndex === 12 || columnIndex === 13) { // Date columns
-                    value = value || '(no date)';
-                } else {
-                    value = value || '(empty)';
-                }
-                
-                uniqueValues.add(value);
-            });
-            
-            // Populate the dropdown
-            const ul = dropdown.querySelector('ul');
-            ul.innerHTML = '';
-            
-            Array.from(uniqueValues).sort().forEach(value => {
-                const li = document.createElement('li');
-                li.textContent = value;
-                li.addEventListener('click', function() {
-                    this.classList.toggle('selected');
-                });
-                ul.appendChild(li);
-            });
-            
-            // Search functionality
-            const searchInput = dropdown.querySelector('input[type="text"]');
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                Array.from(ul.children).forEach(li => {
-                    li.style.display = li.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
-                });
-            });
-            
-            // Apply filter
-            dropdown.querySelector('.apply-filter').addEventListener('click', function() {
-                const selectedValues = Array.from(ul.querySelectorAll('.selected')).map(li => li.textContent);
-                applyColumnFilter(columnIndex, selectedValues);
-                dropdown.style.display = 'none';
-            });
-            
-            // Clear filter
-            dropdown.querySelector('.clear-filter').addEventListener('click', function() {
-                clearColumnFilter(columnIndex);
-                dropdown.style.display = 'none';
-            });
+    const columnIndex = Array.from(header.parentNode.children).indexOf(header);
+    const table = header.closest('table');
+    const rows = table.querySelectorAll('tbody tr');
+    const uniqueValues = new Set();
+    let selectedItems = activeFilters[columnIndex] || [];
+
+    // Collect unique values from the column
+    rows.forEach(row => {
+        const cell = row.children[columnIndex];
+        let value = cell.textContent.trim();
+        
+        // Special handling for different data types
+        if (columnIndex === 0) { // ID column
+            value = value || '(blank)';
+        } else if (columnIndex === 12 || columnIndex === 13) { // Date columns
+            value = value || '(no date)';
+        } else {
+            value = value || '(empty)';
         }
         
-        function applyColumnFilter(columnIndex, selectedValues) {
-            const table = document.querySelector('table');
-            const rows = table.querySelectorAll('tbody tr');
-            
-            rows.forEach(row => {
-                const cell = row.children[columnIndex];
-                const value = cell.textContent.trim();
-                const displayValue = value || (columnIndex === 0 ? '(blank)' : 
-                                      (columnIndex === 12 || columnIndex === 13 ? '(no date)' : '(empty)'));
-                
-                if (selectedValues.length === 0 || selectedValues.includes(displayValue)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
+        uniqueValues.add(value);
+    });
+
+    // Populate the dropdown UI
+    const filterContent = dropdown.querySelector('.filter-content') || dropdown;
+    filterContent.innerHTML = `
+        <div class="filter-search">
+            <input type="text" placeholder="Search..." class="filter-search-input">
+            <div class="selected-count">${selectedItems.length} selected</div>
+        </div>
+        <ul class="filter-options"></ul>
+        <div class="filter-actions">
+            <button class="apply-filter">Apply</button>
+            <button class="clear-filter">Clear</button>
+        </div>
+    `;
+
+    const ul = filterContent.querySelector('ul');
+    const searchInput = filterContent.querySelector('input');
+    const selectedCount = filterContent.querySelector('.selected-count');
+
+    // Populate options and maintain selected state
+    Array.from(uniqueValues).sort().forEach(value => {
+        const li = document.createElement('li');
+        li.textContent = value;
+        
+        // Mark as selected if this value is in our active filters
+        if (selectedItems.includes(value)) {
+            li.classList.add('selected');
         }
+        
+        li.addEventListener('click', function() {
+            this.classList.toggle('selected');
+            const value = this.textContent;
+            
+            if (this.classList.contains('selected')) {
+                if (!selectedItems.includes(value)) {
+                    selectedItems.push(value);
+                }
+            } else {
+                selectedItems = selectedItems.filter(v => v !== value);
+            }
+            
+            selectedCount.textContent = `${selectedItems.length} selected`;
+        });
+        
+        ul.appendChild(li);
+    });
+
+    // Search functionality
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        Array.from(ul.children).forEach(li => {
+            const matchesSearch = li.textContent.toLowerCase().includes(searchTerm);
+            li.style.display = matchesSearch ? '' : 'none';
+        });
+    });
+
+    // Apply filter
+    filterContent.querySelector('.apply-filter').addEventListener('click', function() {
+        applyColumnFilter(columnIndex, selectedItems);
+        dropdown.style.display = 'none';
+    });
+
+    // Clear filter
+    filterContent.querySelector('.clear-filter').addEventListener('click', function() {
+        selectedItems = [];
+        filterContent.querySelectorAll('li.selected').forEach(li => {
+            li.classList.remove('selected');
+        });
+        selectedCount.textContent = '0 selected';
+        clearColumnFilter(columnIndex);
+        dropdown.style.display = 'none';
+    });
+
+    // Focus search input when dropdown opens
+    setTimeout(() => {
+        searchInput.focus();
+    }, 10);
+}
+        
+function applyColumnFilter(columnIndex, selectedValues) {
+    const table = document.querySelector('table');
+    const rows = table.querySelectorAll('tbody tr');
+    
+    // Update active filters
+    if (selectedValues.length > 0) {
+        activeFilters[columnIndex] = selectedValues;
+    } else {
+        delete activeFilters[columnIndex];
+    }
+    
+    // Apply all active filters
+    rows.forEach(row => {
+        let shouldShow = true;
+        
+        // Check against all active filters
+        for (const [colIndex, values] of Object.entries(activeFilters)) {
+            const cell = row.children[colIndex];
+            const value = cell.textContent.trim();
+            const displayValue = value || (colIndex === 0 ? '(blank)' : 
+                                  (colIndex === 12 || colIndex === 13 ? '(no date)' : '(empty)'));
+            
+            if (!values.includes(displayValue)) {
+                shouldShow = false;
+                break;
+            }
+        }
+        
+        row.style.display = shouldShow ? '' : 'none';
+    });
+    
+    // Update UI to show which columns are filtered
+    updateFilterIndicators();
+}
+
+// Add this new function to show filter indicators
+function updateFilterIndicators() {
+    document.querySelectorAll('.filter-header').forEach((header, index) => {
+        if (activeFilters[index]) {
+            header.classList.add('active-filter');
+            // Add a badge showing how many filters are applied to this column
+            const badge = header.querySelector('.filter-badge') || document.createElement('span');
+            badge.className = 'filter-badge';
+            badge.textContent = activeFilters[index].length;
+            if (!header.querySelector('.filter-badge')) {
+                header.appendChild(badge);
+            }
+        } else {
+            header.classList.remove('active-filter');
+            const badge = header.querySelector('.filter-badge');
+            if (badge) {
+                badge.remove();
+            }
+        }
+    });
+}
+
         
         function clearColumnFilter(columnIndex) {
-            const table = document.querySelector('table');
-            const rows = table.querySelectorAll('tbody tr');
-            
-            rows.forEach(row => {
-                row.style.display = '';
-            });
-        }
+    delete activeFilters[columnIndex];
+    applyColumnFilter(columnIndex, []);
+}
 
          document.addEventListener('DOMContentLoaded', function() {
     const downloadForm = document.querySelector('form[action="{% url 'request_download' %}"]');
@@ -854,6 +1042,21 @@
       }
     });
   });
+  // Add this to your DOMContentLoaded event listener
+document.getElementById('clear-all-filters').addEventListener('click', function() {
+    // Clear all active filters
+    for (const columnIndex in activeFilters) {
+        delete activeFilters[columnIndex];
+    }
+    
+    // Show all rows
+    document.querySelectorAll('tbody tr').forEach(row => {
+        row.style.display = '';
+    });
+    
+    // Update UI
+    updateFilterIndicators();
+});
     </script>
 </body>
 </html>

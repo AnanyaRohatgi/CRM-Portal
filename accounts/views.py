@@ -634,8 +634,9 @@ def approve_download(request, token):
     download_req.status = "approved"
     download_req.save()
     
-    # Send download link to the user who requested it
-    download_link = request.build_absolute_uri(reverse("download_accounts_csv")) + f"?token={token}"
+    # Use the public URL from settings
+    from django.conf import settings
+    download_link = f"{settings.SITE_URL}/download/accounts/?token={token}"
     
     try:
         send_mail(
@@ -644,8 +645,8 @@ def approve_download(request, token):
 Hello,
 
 Your CSV download request has been approved!
-
 Click the link below to download your data:
+
 {download_link}
 
 This link is valid for this download session.
@@ -656,7 +657,6 @@ System Admin
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[download_req.requested_by],
         )
-        
         return HttpResponse("✅ Download Approved. The user has been notified via email with the download link.")
     except Exception as e:
         return HttpResponse(f"✅ Download Approved, but failed to send email to user: {str(e)}")
