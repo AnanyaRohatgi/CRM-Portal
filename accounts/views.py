@@ -15,10 +15,25 @@ from datetime import datetime
 from django.core.paginator import Paginator
 from django.db.models import Q
 from .decorators import staff_approved_required 
-
+from django.contrib.auth.decorators import login_required
+from .models import UserRegion
 import csv
 import io
 
+def get_user_allowed_regions(user):
+    """
+    Get the regions that a user is allowed to access based on their full name
+    """
+    # Construct full name from user object
+    full_name = f"{user.first_name} {user.last_name}".strip()
+    
+    try:
+        user_region = UserRegion.objects.get(account_owner_name=full_name)
+        return user_region.get_region_list()
+    except UserRegion.DoesNotExist:
+        # If user not found in UserRegion table, return empty list (no access)
+        return []
+    
 def signup_view(request):
     if request.method == 'POST':
         print("POST received")
@@ -67,12 +82,18 @@ def login_view(request):
         
         print(f"Login attempt - Username: {username}")
 
-        # Use Django's built-in authentication system
         user = authenticate(request, username=username, password=password)
         
         if user is not None:
+            # NEW REGION CHECK
+            allowed_regions = get_user_allowed_regions(user)
+            if not allowed_regions:
+                messages.error(request, 'Access denied. You are not authorized to access any regions.')
+                return render(request, 'accounts/index.html')
+            
             login(request, user)
             print(f"✅ Login successful for user: {username}")
+            print(f"✅ User has access to regions: {allowed_regions}")
             return redirect('setup')
         else:
             print(f"❌ Login failed for user: {username}")
@@ -513,9 +534,25 @@ def update_account(request, pk):
 
 from django.core.paginator import Paginator
 
+
+@login_required
 def preview_view(request):
     search_query = request.GET.get('search', '')
-    accounts = Account.objects.all().order_by('contact_id')  # Default ordering
+    allowed_regions = get_user_allowed_regions(request.user)
+    if request.user.is_superuser:
+        accounts = Account.objects.all()
+    else:
+        if not allowed_regions:
+            accounts = Account.objects.none()
+            messages.warning(request, 'You do not have access to any regional data.')
+        else:
+            # Filter accounts based on user's allowed regions (case-insensitive)
+            accounts = Account.objects.filter(
+                region__iregex=r'^(' + '|'.join(allowed_regions) + ')$'
+            )
+    
+    # Apply ordering and search (existing functionality)
+    accounts = accounts.order_by('contact_id')
     
     if search_query:
         accounts = accounts.filter(
@@ -541,6 +578,8 @@ def preview_view(request):
         'has_next': page_obj.has_next(),
         'previous_page_number': page_obj.previous_page_number() if page_obj.has_previous() else 1,
         'next_page_number': page_obj.next_page_number() if page_obj.has_next() else paginator.num_pages,
+        'allowed_regions': allowed_regions,
+        'user_full_name': f"{request.user.first_name} {request.user.last_name}".strip(),
     }
     
     # Calculate page range for pagination (show 5 pages around current)

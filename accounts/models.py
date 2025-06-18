@@ -10,7 +10,24 @@ class DownloadRequest(models.Model):
         default='pending'
     )
     timestamp = models.DateTimeField(auto_now_add=True)
+
+class UserRegion(models.Model):
+    """
+    Stores which regions each account owner can access
+    """
+    account_owner_name = models.CharField(max_length=100, unique=True)
+    account_owner_alias = models.CharField(max_length=50)
+    regions = models.CharField(max_length=100)  # Comma-separated values like "India,Singapore"
     
+    def get_region_list(self):
+        return [r.strip().lower() for r in self.regions.split(',')]
+    
+    def __str__(self):
+        return f"{self.account_owner_name} - {self.regions}"
+    
+    class Meta:
+        db_table = 'user_regions'
+
 class Account(models.Model):
     contact_id = models.AutoField(primary_key=True)
     salutation = models.CharField(max_length=10, blank=True, null=True)
@@ -43,6 +60,5 @@ class Account(models.Model):
             models.Index(fields=['email']),
             models.Index(fields=['account_id']),
             models.Index(fields=['phone', 'mobile']),
+            models.Index(fields=['region']),  # Added for performance
         ]
-
-

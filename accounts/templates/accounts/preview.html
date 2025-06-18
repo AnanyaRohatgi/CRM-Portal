@@ -419,6 +419,11 @@
     </style>
 </head>
 <body>
+    <div class="alert alert-info">
+    <strong>Welcome, {{ user_full_name }}!</strong><br>
+    You have access to: <strong>{{ allowed_regions|join:", "|title }}</strong> region(s)<br>
+    Showing {{ total_accounts }} records from your authorized regions.
+</div>
     <div class="container">
         <h1>Accounts Preview</h1>
         
