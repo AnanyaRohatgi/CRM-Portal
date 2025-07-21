@@ -1,0 +1,711 @@
+// Enhanced email validation (add this near the top of your file)
+function isValidEmail(email) {
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return re.test(String(email).toLowerCase());
+}
+function formatIndianDateTime(date) {
+  const options = {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'Asia/Kolkata'
+  };
+  
+  // Format as "6 July 2025, 6:36 p.m."
+  let formatted = date.toLocaleString('en-IN', options);
+  
+  // Convert AM/PM to lowercase with periods
+  formatted = formatted.replace('AM', 'a.m.').replace('PM', 'p.m.');
+  
+  return formatted;
+}
+function showToast(message, type = 'success') {
+     console.log("🔥 Toast called with:", message, type);
+    const maxToasts = 3;
+    const containerId = 'toast-container';
+
+    // Create or get the toast container
+    let container = document.getElementById(containerId);
+    if (!container) {
+        container = document.createElement('div');
+        container.id = containerId;
+        container.style.position = 'fixed';
+        container.style.top = '20px';
+        container.style.right = '20px';
+        container.style.zIndex = '9999';
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column';
+        container.style.gap = '10px';
+        document.body.appendChild(container);
+    }
+
+    // Remove old toasts if more than max
+    while (container.children.length >= maxToasts) {
+        container.removeChild(container.firstChild);
+    }
+
+    // Create new toast
+    const toast = document.createElement('div');
+    toast.className = `message-toast ${type} visible`;
+    toast.style.background = type === 'error' ? '#f44336' : (type === 'warning' ? '#ff9800' : '#4CAF50');
+    toast.style.color = 'white';
+    toast.style.padding = '12px 18px';
+    toast.style.borderRadius = '6px';
+    toast.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+    toast.style.transition = 'opacity 0.3s ease';
+    toast.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="flex: 1;">${message}</span>
+            <button class="toast-close" style="margin-left: 12px; background: transparent; border: none; color: white; font-size: 16px; cursor: pointer;">&times;</button>
+        </div>
+    `;
+
+    container.appendChild(toast);
+    console.log("✅ Toast element appended:", toast);
+
+
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+
+    // Manual close
+    toast.querySelector('.toast-close').addEventListener('click', () => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    });
+
+    return toast;
+}
+window.showToast = showToast; 
+document.addEventListener("DOMContentLoaded", () => {
+
+    const unifiedAddBtn = document.getElementById("unifiedAddBtn");
+    const unifiedUpdateBtn = document.getElementById("unifiedUpdateBtn");
+    const unifiedAddForm = document.getElementById("unified-add-form");
+    const unifiedUpdateForm = document.getElementById("unified-update-form");
+    const unifiedSearchInput = document.getElementById("unified_search");
+    const unifiedDropdown = document.getElementById("unified_dropdown");
+    const emailInput = document.getElementById("unified_email");
+
+    // Global Preview Buttons
+    const previewContactsBtn = document.querySelector('.global-preview-buttons a[href*="preview"]');
+    const previewAccountsBtn = document.querySelector('.global-preview-buttons a[href*="preview-accounts"]');
+
+    // CSV Upload Elements
+    const dropZone = document.getElementById("drop-zone");
+    const fileInput = document.getElementById("file-input");
+    const csvUploadBtn = document.getElementById("csv-upload-btn");
+    const originalDropZoneContent = dropZone?.innerHTML || '';
+
+    let dateUpdateInterval = null;
+
+    // Email Validation Functions
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
+// Email validation function
+function validateEmailOnSubmit() {
+    const emailInput = document.getElementById("unified_email");
+    if (!emailInput) return true; // if no email field, skip validation
+    
+    const email = emailInput.value.trim();
+    
+    // Check if email is empty or invalid
+    if (!email || (email && !validateEmail(email))) {
+        alert("Please enter a valid email address to submit the record (e.g., example@domain.com)");
+        emailInput.focus(); // Focus the email field for better UX
+        return false;
+    }
+    return true;
+}
+// Unified form submission handler with email validation
+if (unifiedAddForm) {
+    unifiedAddForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        // Validate required fields including email
+        const emailInput = document.getElementById("unified_email");
+const phoneInput = document.getElementById("unified_phone");
+
+const email = emailInput ? emailInput.value.trim() : '';
+const phone = phoneInput ? phoneInput.value.trim() : '';
+
+// Validate presence of at least one
+if (!email && !phone) {
+    showToast("Please enter at least an email or a mobile phone number.", "error");
+    if (emailInput) emailInput.focus();
+    return false;
+}
+
+// If email is present, validate it
+if (email && !isValidEmail(email)) {
+    showToast("Please enter a valid email address (e.g., user@example.com)", "error");
+    if (emailInput) emailInput.focus();
+    return false;
+}
+
+    
+        try {
+            const response = await fetch(unifiedAddForm.action, {
+                method: 'POST',
+                body: new FormData(unifiedAddForm),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+            
+            const result = await response.json();
+            showToast(result.message, result.status);
+            
+            if (result.status === 'success') {
+                unifiedAddForm.reset();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast("Error submitting form", "error");
+        }
+    });
+}
+// Real-time email validation (add this to your DOMContentLoaded event listener)
+if (emailInput) {
+    emailInput.addEventListener('blur', () => {
+        const email = emailInput.value.trim();
+        if (email && !isValidEmail(email)) {
+            showToast("Please enter a valid email address", "error");
+            emailInput.classList.add('invalid-field');
+        } else {
+            emailInput.classList.remove('invalid-field');
+        }
+    });
+
+    emailInput.addEventListener('input', () => {
+        const email = emailInput.value.trim();
+        if (email && isValidEmail(email)) {
+            emailInput.classList.remove('invalid-field');
+        }
+    });
+}
+    function showEmailError(message) {
+        const errorElement = document.getElementById("email-error") || createEmailErrorElement();
+        errorElement.textContent = message;
+        errorElement.style.display = "block";
+    }
+
+    function createEmailErrorElement() {
+        const errorElement = document.createElement("div");
+        errorElement.id = "email-error";
+        errorElement.className = "error-message";
+        errorElement.style.color = "red";
+        errorElement.style.marginTop = "5px";
+        errorElement.style.display = "none";
+        if (emailInput) {
+            emailInput.insertAdjacentElement("afterend", errorElement);
+        }
+        return errorElement;
+    }
+    
+
+    function hideEmailError() {
+        const errorElement = document.getElementById("email-error");
+        if (errorElement) errorElement.style.display = "none";
+    }
+
+    function validateEmailField() {
+        const email = emailInput ? emailInput.value.trim() : '';
+        if (email && !validateEmail(email)) {
+            showEmailError("Please enter a valid email address (e.g., example@domain.com)");
+            return false;
+        }
+        hideEmailError();
+        return true;
+    }
+
+    // Initialize email validation
+    if (emailInput) {
+        emailInput.addEventListener("blur", validateEmailField);
+        emailInput.addEventListener("input", () => {
+            if (document.getElementById("email-error")) {
+                validateEmailField();
+            }
+        });
+    }
+
+
+    // Unified Add Records Button
+    if (unifiedAddBtn) {
+        unifiedAddBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const isCurrentlyVisible = !unifiedAddForm.classList.contains("hidden-form");
+            closeAllForms();
+
+            if (!isCurrentlyVisible) {
+                unifiedAddForm.classList.remove("hidden-form");
+                unifiedAddBtn.classList.add("selected");
+                startRealTimeUpdates();
+                setupUnifiedAutofill();
+                enableUnifiedAutocomplete();
+            }
+        });
+    }
+
+    // Update the unifiedUpdateBtn event listener
+if (unifiedUpdateBtn) {
+    unifiedUpdateBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const updateSection = document.getElementById("unified-update-section");
+        const isCurrentlyVisible = !updateSection.classList.contains("hidden-form");
+        
+        // Close all forms first
+        closeAllForms();
+        
+        // Toggle the update section
+        if (!isCurrentlyVisible) {
+            updateSection.classList.remove("hidden-form");
+            unifiedUpdateBtn.classList.add("selected");
+            stopRealTimeUpdates();
+        } else {
+            // This else block handles the case when clicking the button again
+            updateSection.classList.add("hidden-form");
+            unifiedUpdateBtn.classList.remove("selected");
+        }
+    });
+}
+
+// Modify the closeAllForms function to not interfere with the toggle behavior
+function closeAllForms() {
+    // Don't close the update section here - let the button click handler manage it
+    if (unifiedAddForm) unifiedAddForm.classList.add("hidden-form");
+    
+    // Remove 'selected' class from add button only
+    if (unifiedAddBtn) unifiedAddBtn.classList.remove("selected");
+    
+    stopRealTimeUpdates();
+}
+
+// In your unified search functionality (around line 150 in your JS)
+if (unifiedSearchInput && unifiedDropdown) {
+    unifiedSearchInput.addEventListener("input", async () => {
+        const query = unifiedSearchInput.value.trim();
+        if (query.length < 2) {
+            unifiedDropdown.innerHTML = "";
+            unifiedDropdown.style.display = "none";
+            return;
+        }
+
+        try {
+            // Search both contacts and accounts
+            const [contactsRes, accountsRes] = await Promise.all([
+                fetch(`/api/search-contacts/?q=${encodeURIComponent(query)}`),
+                fetch(`/api/search-accounts/?q=${encodeURIComponent(query)}`)
+            ]);
+
+            const contacts = await contactsRes.json();
+            const accounts = await accountsRes.json();
+
+            unifiedDropdown.innerHTML = "";
+
+            // Add contact results
+            contacts.results.forEach(contact => {
+                const option = document.createElement("div");
+                option.className = "autocomplete-option";
+                const fullName = contact.full_name || `${contact.first_name || ""} ${contact.last_name || ""}`.trim();
+option.textContent = `${contact.account_name} - ${fullName}`;
+                option.dataset.type = "contact";
+                option.dataset.id = contact.id;
+                unifiedDropdown.appendChild(option);
+            });
+
+            // Add account results
+            accounts.results.forEach(account => {
+                const option = document.createElement("div");
+                option.className = "autocomplete-option";
+                option.textContent = `${account.account_name} - -`; // Double hyphen for accounts
+                option.dataset.type = "account";
+                option.dataset.id = account.id;
+                unifiedDropdown.appendChild(option);
+            });
+
+            unifiedDropdown.style.display = unifiedDropdown.children.length > 0 ? "block" : "none";
+        } catch (error) {
+            console.error("Search error:", error);
+        }
+    });
+
+    // Handle selection from dropdown - MODIFIED THIS PART
+    unifiedDropdown.addEventListener("click", (e) => {
+        const option = e.target.closest(".autocomplete-option");
+        if (!option) return;
+
+        const recordType = option.dataset.type;
+        const recordId = option.dataset.id;
+
+        // Redirect based on record type
+        if (recordType === "contact") {
+            window.location.href = `/update/${recordId}/?source=contacts`;
+        } else if (recordType === "account") {
+            window.location.href = `/update-record/${recordId}/?source=accounts`;
+        }
+    });
+
+    // Hide dropdown when clicking outside
+    document.addEventListener("click", (e) => {
+        if (!unifiedSearchInput.contains(e.target) && !unifiedDropdown.contains(e.target)) {
+            unifiedDropdown.style.display = "none";
+        }
+    });
+}
+
+    async function fetchRecordDetails(recordType, recordId) {
+        try {
+            const response = await fetch(`/api/get-${recordType}/?id=${recordId}`);
+            const data = await response.json();
+
+            if (data.error) {
+                console.error("Error fetching record:", data.error);
+                return;
+            }
+
+            // Populate the unified update form
+            populateUpdateForm(recordType, data);
+            
+            // Show the update form
+            unifiedUpdateForm.classList.remove("hidden-form");
+            unifiedDropdown.style.display = "none";
+
+        } catch (error) {
+            console.error("Error fetching record details:", error);
+        }
+    }
+
+    function populateUpdateForm(recordType, data) {
+        // Set the record type and ID in hidden fields
+        document.getElementById("unified_record_type").value = recordType;
+        document.getElementById("unified_record_id").value = data.id;
+
+        // Clear all fields first
+        const form = unifiedUpdateForm;
+        const inputs = form.querySelectorAll("input, select");
+        inputs.forEach(input => input.value = "");
+
+        // Populate fields based on record type
+        if (recordType === "contact") {
+            // Contact fields
+            if (form.querySelector('[name="FirstName"]')) form.querySelector('[name="FirstName"]').value = data.first_name || "";
+            if (form.querySelector('[name="LastName"]')) form.querySelector('[name="LastName"]').value = data.last_name || "";
+            if (form.querySelector('[name="Email"]')) form.querySelector('[name="Email"]').value = data.email || "";
+            // Add more contact fields as needed
+        } else if (recordType === "account") {
+            // Account fields
+            if (form.querySelector('[name="Account_Name"]')) form.querySelector('[name="Account_Name"]').value = data.account_name || "";
+            if (form.querySelector('[name="Industry"]')) form.querySelector('[name="Industry"]').value = data.industry || "";
+            if (form.querySelector('[name="Phone"]')) form.querySelector('[name="Phone"]').value = data.phone || "";
+            // Add more account fields as needed
+        }
+
+        // Common fields
+        if (form.querySelector('[name="REGION"]') && data.region) {
+            form.querySelector('[name="REGION"]').value = data.region || "";
+        }
+        if (form.querySelector('[name="Zone"]')) form.querySelector('[name="Zone"]').value = data.zone || "";
+    }
+
+    // --- CSV Upload Section Logic ---
+    const openFileDialog = () => fileInput?.click();
+
+    if (dropZone) dropZone.addEventListener("click", openFileDialog);
+    if (csvUploadBtn) csvUploadBtn.addEventListener("click", openFileDialog);
+
+    if (fileInput) {
+        fileInput.addEventListener("change", () => {
+            if (fileInput.files.length > 0) handleFile(fileInput.files[0]);
+        });
+    }
+
+    if (dropZone) {
+        ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ["dragenter", "dragover"].forEach((eventName) => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.add("dragover");
+            });
+        });
+
+        ["dragleave", "drop"].forEach((eventName) => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.remove("dragover");
+            });
+        });
+
+        dropZone.addEventListener("drop", (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFile(files[0]);
+            }
+        });
+    }
+
+    function handleFile(file) {
+        if (!dropZone) return;
+
+        if (file && file.name.toLowerCase().endsWith(".csv")) {
+            dropZone.innerHTML = `
+                <div class="file-display">
+                    <span class="filename" title="${file.name}">${file.name}</span>
+                    <button type="button" class="clear-selection">&times;</button>
+                </div>
+            `;
+
+            const clearBtn = dropZone.querySelector(".clear-selection");
+            if (clearBtn) {
+                clearBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    clearSelection();
+                });
+            }
+        } else {
+            alert("Please upload a valid CSV file.");
+            clearSelection();
+        }
+    }
+
+    function clearSelection() {
+        if (fileInput) fileInput.value = "";
+        if (dropZone) dropZone.innerHTML = originalDropZoneContent;
+    }
+
+    function updateDates() {
+    const createdDateInput = document.getElementById('unified_created_date');
+    const timestampInput = document.getElementById('unified_created_date_iso');
+
+    const now = new Date();
+    
+    // Display formatted Indian time
+    if (createdDateInput) {
+        createdDateInput.value = formatIndianDateTime(now);
+    }
+    
+    // Store ISO format in hidden field (UTC)
+    if (timestampInput) {
+        timestampInput.value = now.toISOString();
+    }
+}
+
+    function startRealTimeUpdates() {
+        if (unifiedAddForm && !unifiedAddForm.classList.contains("hidden-form")) {
+            updateDates();
+            if (!dateUpdateInterval) {
+                dateUpdateInterval = setInterval(updateDates, 1000);
+            }
+        }
+    }
+
+    function stopRealTimeUpdates() {
+        if (dateUpdateInterval) {
+            clearInterval(dateUpdateInterval);
+            dateUpdateInterval = null;
+        }
+    }
+
+    // --- Autofill Logic for Unified Form ---
+    function setupUnifiedAutofill() {
+        const accountNameInput = document.getElementById("unified_account_name");
+        if (accountNameInput) {
+            accountNameInput.removeEventListener("blur", handleUnifiedAutofillBlur);
+            accountNameInput.addEventListener("blur", handleUnifiedAutofillBlur);
+        }
+    }
+
+    async function handleUnifiedAutofillBlur() {
+    const accountNameInput = document.getElementById("unified_account_name");
+    if (!accountNameInput) return;
+
+    const name = accountNameInput.value.trim();
+    if (name.length === 0) {
+        clearUnifiedAutofillFields();
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/get-account/?account_name=${encodeURIComponent(name)}`);
+        if (!response.ok) {
+            clearUnifiedAutofillFields();
+            return;
+        }
+
+        const result = await response.json();
+        const data = result.data;
+
+        if (data.error) {
+            clearUnifiedAutofillFields();
+        } else {
+            // Autofill account fields
+            const regionInput = document.getElementById("unified_region");
+            const zoneInput = document.getElementById("unified_zone");
+            const ownerInput = document.getElementById("unified_owner");
+            
+            if (regionInput && data.region) {
+                regionInput.value = data.region;
+            }
+            if (zoneInput && data.zone) {
+                zoneInput.value = data.zone;
+            }
+            if (ownerInput && data.account_owner) {
+                ownerInput.value = data.account_owner;
+            }
+        }
+    } catch (error) {
+        console.error("Fetch error for Account Autofill:", error);
+        clearUnifiedAutofillFields();
+    }
+}
+
+    function clearUnifiedAutofillFields() {
+        const fieldsToClean = [
+            "unified_account_id", "unified_phone", "unified_industry",
+            "unified_website", "unified_owner", "unified_zone"
+        ];
+
+        fieldsToClean.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) field.value = "";
+        });
+
+        const regionInput = document.getElementById("unified_region");
+        if (regionInput) regionInput.value = "";
+    }
+
+    const createdDateField = document.getElementById('unified_created_date');
+    
+    if (createdDateField) {
+        const now = new Date();
+        const options = { 
+            day: 'numeric', 
+            month: 'long', 
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        };
+        
+        // Format as "6 July 2025, 5:30 PM"
+        createdDateField.value = now.toLocaleString('en-US', options);
+        
+        // Also set ISO version if you need it for server-side
+        const isoField = document.getElementById('unified_created_date_iso');
+        if (isoField) {
+            isoField.value = now.toISOString();
+        }
+    }
+    
+
+    // === AUTOCOMPLETE for Unified Form ===
+function enableUnifiedAutocomplete() {
+    const input = document.getElementById("unified_account_name");
+    if (!input) return;
+
+    const suggestionBox = createSuggestionBox(input);
+
+    input.addEventListener("input", async () => {
+        const query = input.value.trim();
+        if (query.length < 1) {
+            suggestionBox.innerHTML = "";
+            suggestionBox.style.display = "none";
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/autocomplete-accounts/?q=${encodeURIComponent(query)}`);
+            const suggestions = await response.json();
+
+            suggestionBox.innerHTML = "";
+
+            suggestions.forEach(s => {
+                const div = document.createElement("div");
+                div.className = "autocomplete-suggestion";
+                div.textContent = s.text;
+                div.dataset.region = s.region || "";
+                div.dataset.zone = s.zone || "";
+                div.dataset.owner = s.account_owner || "";
+                
+                div.addEventListener("click", () => {
+                    input.value = s.text;
+                    
+                    // Autofill the additional fields
+                    const regionInput = document.getElementById("unified_region");
+                    const zoneInput = document.getElementById("unified_zone");
+                    const ownerInput = document.getElementById("unified_owner");
+                    
+                    if (regionInput) regionInput.value = div.dataset.region;
+                    if (zoneInput) zoneInput.value = div.dataset.zone;
+                    if (ownerInput) ownerInput.value = div.dataset.owner;
+                    
+                    suggestionBox.innerHTML = "";
+                    suggestionBox.style.display = "none";
+                });
+
+                suggestionBox.appendChild(div);
+            });
+
+            suggestionBox.style.display = suggestions.length > 0 ? "block" : "none";
+        } catch (error) {
+            console.error("Autocomplete error:", error);
+        }
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!suggestionBox.contains(e.target) && e.target !== input) {
+            suggestionBox.innerHTML = "";
+            suggestionBox.style.display = "none";
+        }
+    });
+}
+
+    // === Utility to create dropdown container ===
+    function createSuggestionBox(inputEl) {
+        let box = inputEl.nextElementSibling;
+        if (box && box.classList.contains("autocomplete-box")) return box;
+
+        box = document.createElement("div");
+        box.className = "autocomplete-box";
+        box.style.position = "absolute";
+        box.style.zIndex = "999";
+        box.style.background = "white";
+        box.style.border = "1px solid #ccc";
+        box.style.width = inputEl.offsetWidth + "px";
+        box.style.maxHeight = "200px";
+        box.style.overflowY = "auto";
+        box.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)";
+        box.style.display = "none";
+        box.style.cursor = "pointer";
+
+        inputEl.parentElement.appendChild(box);
+        return box;
+    }
+
+    // Initial setup
+    closeAllForms();
+    if (dropZone) {
+        dropZone.style.display = "block";
+    }
+
+    window.addEventListener("beforeunload", stopRealTimeUpdates);
+    window.validateEmailField = validateEmailField;
+});

@@ -1,0 +1,1349 @@
+{% load static %}
+{% load dict_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{% static 'accounts/favicon.png' %}">
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+    <title>Account Preview</title>
+    <style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    overflow-x: auto;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Stats section */
+.stats {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.stats strong {
+    color: #495057;
+}
+
+/* Controls row */
+.controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+/* Search group */
+.search-group {
+    flex: 1;
+    min-width: 300px;
+}
+
+.search-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-form input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.search-form button {
+    padding: 8px 16px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.search-form button:hover {
+    background: #0056b3;
+}
+
+.clear-search {
+    padding: 8px 12px;
+    background: #6c757d;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.clear-search:hover {
+    background: #545b62;
+}
+
+/* Action group */
+.action-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.download-btn {
+    background: #28a745;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.download-btn:hover {
+    background: #218838;
+}
+
+.delete-btn {
+    background: #dc3545;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-small:hover {
+    opacity: 0.8;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* Table styles */
+.table-container {
+    overflow-x: auto;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    font-size: 13px;
+}
+
+th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.email-cell {
+    max-width: 200px;
+    word-break: break-all;
+}
+
+.address-cell {
+    max-width: 150px;
+    word-wrap: break-word;
+}
+
+/* Action buttons */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-edit {
+    background: #28a745 !important;
+    color: white;
+}
+
+.btn-delete {
+    background: #dc3545 !important;
+    color: white;
+}
+
+/* Filter dropdown styles */
+.filter-header {
+    position: relative;
+    cursor: pointer;
+    overflow: visible;
+    vertical-align: top;
+}
+
+.filter-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.filter-indicator {
+    font-size: 12px;
+    display: inline-block;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+.filter-header.active {
+    background-color: #eaf2ff;
+    border-bottom: 2px solid #007bff;
+}
+
+.filter-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 12px 10px;
+    z-index: 1003;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    display: none;
+    max-height: 320px;
+    overflow-y: auto;
+    min-width: 260px;
+    width: 250px;
+}
+
+.filter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-search-wrapper {
+    margin-bottom: 8px;
+}
+
+.filter-search-input {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.scrollable-checkboxes {
+    max-height: 180px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    padding: 4px;
+    margin-bottom: 8px;
+}
+
+.filter-checkbox-list {
+    max-height: 200px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.filter-checkbox-item {
+    display: block;
+    margin: 4px 0;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filter-multiselect {
+    width: 100%;
+    min-height: 100px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.apply-filter-btn {
+    display: block;
+    width: 100%;
+    padding: 6px 0;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.2s;
+}
+
+.apply-filter-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Active filter badges */
+.active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 20px;
+}
+
+.filter-badge {
+    background-color: #e2ecf9;
+    color: #0c2d72;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.05);
+}
+
+.filter-badge .remove-badge {
+    background: transparent;
+    border: none;
+    color: #555;
+    font-size: 14px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.filter-badge .remove-badge:hover {
+    color: #c00;
+}
+
+/* Pagination styles */
+.pagination-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 10px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.pagination li {
+    margin: 0 2px;
+}
+
+.pagination li a,
+.pagination li span {
+    display: inline-block;
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    color: #007bff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.pagination li.active span {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.pagination li.disabled span {
+    color: #6c757d;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+}
+
+.pagination li a:hover {
+    background-color: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.page-info {
+    font-size: 14px;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+/* Info banners */
+.info-banner {
+    background-color: #e7f5ff;
+    border-left: 4px solid #4a90e2;
+    padding: 15px;
+    margin-bottom: 25px;
+    border-radius: 0 4px 4px 0;
+    font-size: 14px;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.info-banner strong {
+    color: #2c3e50;
+    font-size: 15px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.info-details {
+    line-height: 1.5;
+}
+
+.highlight {
+    background-color: #d4edff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+}
+
+.record-count {
+    margin-top: 5px;
+    color: #555;
+    font-size: 13px;
+}
+
+.staff-banner {
+    background: #fff8e1;
+    border-left: 4px solid #ffc107;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    border-radius: 4px;
+    color: #5a3e00;
+    transition: transform 0.9s ease, opacity 0.5s ease;
+}
+
+.staff-banner.hide {
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 25px;
+    border: 1px solid #888;
+    width: 450px;
+    border-radius: 8px;
+    position: relative;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 22px;
+    cursor: pointer;
+    color: #888;
+}
+
+.close-modal:hover {
+    color: #000;
+}
+
+.modal-btn {
+    background: #007bff;
+    color: white;
+    padding: 8px 16px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal-btn:hover {
+    background: #0056b3;
+}
+
+/* Loader styles */
+.loader {
+    text-align: center;
+    padding: 20px;
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top: 4px solid #3498db;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .controls-row {
+        flex-direction: column;
+    }
+    
+    .search-group,
+    .action-group {
+        width: 100%;
+    }
+    
+    .search-form {
+        margin-bottom: 10px;
+    }
+    
+    .action-group form {
+        flex: 1;
+    }
+    
+    .search-form input {
+        min-width: auto;
+    }
+    
+    .pagination-container {
+        flex-direction: column;
+    }
+    
+    .pagination {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+
+/* No results message */
+.no-results {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+    font-size: 16px;
+}
+
+.count-badge {
+    background: #e0e0e0;
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-size: 12px;
+    margin-left: 10px;
+}
+</style>
+</head>
+<body>
+
+    {% if user.is_staff %}
+        <div class="staff-banner">
+            ⚙️ You are viewing all regions (Admin Mode)
+        </div>
+    {% endif %}
+    
+    <div class="info-banner">
+        <strong>Welcome, {{ user_full_name }}!</strong>
+        <div class="info-details">
+            You have access to: <span class="highlight">{{ allowed_regions|join:", "|title }}</span> region(s)
+            <div class="record-count">Showing {{ total_accounts }} records from your authorized regions</div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h1>Accounts Preview</h1>
+        
+        <!-- Stats section -->
+        <div class="stats">
+            <strong>
+                {% if search_query %}
+                    Showing {{ accounts|length }} of {{ total_accounts }} accounts (filtered by "{{ search_query }}")
+                {% else %}
+                    Total Accounts: {{ total_accounts }} | Page {{ current_page }} of {{ total_pages }}
+                {% endif %}
+            </strong>
+        </div>
+        
+        <!-- Main controls row -->
+<div class="controls-row">
+    <!-- Search section -->
+    <div class="search-group">
+        <form class="search-form" method="GET">
+            <input type="text" 
+                   name="search" 
+                   placeholder="Search by name, phone, website or region..." 
+                   value="{{ search_query }}"
+                   autocomplete="off">
+            <button type="submit">Search</button>
+            {% if search_query %}
+                <a href="{% url 'preview-accounts' %}" class="clear-search">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+    
+    <!-- Action buttons -->
+    <div class="action-group">
+        <button id="clear-filters-btn" class="btn btn-secondary" style="padding: 6px 12px; font-size: 14px; cursor: pointer; margin-right: 10px;">
+            ✖ Clear All Filters
+        </button>
+       {% if user.is_staff %}
+<form method="POST" action="{% url 'request_download' %}" id="downloadForm">
+    {% csrf_token %}
+    <input type="hidden" name="data_type" value="accounts">
+    <input type="hidden" name="page_context" value="accounts_preview">
+    <!-- Add hidden fields for current filters -->
+    {% for key, value in request.GET.items %}
+        <input type="hidden" name="{{ key }}" value="{{ value }}">
+    {% endfor %}
+    <button type="submit" class="action-btn download-btn">Download CSV</button>
+</form>
+{% endif %}
+
+    </div>
+</div>
+
+        {% if accounts %}
+        <div class="filter-controls" style="margin-bottom: 10px;">
+</div>
+        <table class="data-table">
+    <thead>
+    <thead>
+  <tr>
+    {% comment %} ACCOUNT NAME {% endcomment %}
+    <th class="filter-header" data-column="account_name">
+      <div class="filter-label">Account Name <span class="filter-indicator">▼</span></div>
+      <div class="filter-dropdown">
+        <div class="filter-search-wrapper">
+          <input type="text" class="filter-search-input" placeholder="Search..." data-field="account_name">
+        </div>
+        <div class="filter-checkbox-list" data-field="account_name">
+          {% for value, count in filter_options|get_item:"account_name" %}
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="{{ value }}" name="account_name"
+                {% if value in active_filters|get_item:"account_name" %}checked{% endif %}>
+              {{ value }} ({{ count }})
+            </label>
+          {% endfor %}
+        </div>
+         <button class="apply-filter-btn" data-field="account_name">Apply</button>
+      </div>
+    </th>
+
+    {% comment %} INDUSTRY {% endcomment %}
+    <th class="filter-header" data-column="industry">
+      <div class="filter-label">Industry <span class="filter-indicator">▼</span></div>
+      <div class="filter-dropdown">
+        <div class="filter-search-wrapper">
+          <input type="text" class="filter-search-input" placeholder="Search..." data-field="industry">
+        </div>
+        <div class="filter-checkbox-list" data-field="industry">
+          {% for value, count in filter_options|get_item:"industry" %}
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="{{ value }}" name="industry"
+                {% if value in active_filters|get_item:"industry" %}checked{% endif %}>
+              {{ value }} ({{ count }})
+            </label>
+          {% endfor %}
+        </div>
+         <button class="apply-filter-btn" data-field="industry">Apply</button>
+      </div>
+    </th>
+
+    {% comment %} CITY {% endcomment %}
+    <th class="filter-header" data-column="city">
+      <div class="filter-label">City <span class="filter-indicator">▼</span></div>
+      <div class="filter-dropdown">
+        <div class="filter-search-wrapper">
+          <input type="text" class="filter-search-input" placeholder="Search..." data-field="city">
+        </div>
+        <div class="filter-checkbox-list" data-field="city">
+          {% for value, count in filter_options|get_item:"city" %}
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="{{ value }}" name="city"
+                {% if value in active_filters|get_item:"city" %}checked{% endif %}>
+              {{ value }} ({{ count }})
+            </label>
+          {% endfor %}
+        </div>
+         <button class="apply-filter-btn" data-field="city">Apply</button>
+      </div>
+    </th>
+
+    {% comment %} STATE {% endcomment %}
+    <th class="filter-header" data-column="state">
+      <div class="filter-label">State <span class="filter-indicator">▼</span></div>
+      <div class="filter-dropdown">
+        <div class="filter-search-wrapper">
+          <input type="text" class="filter-search-input" placeholder="Search..." data-field="state">
+        </div>
+        <div class="filter-checkbox-list" data-field="state">
+          {% for value, count in filter_options|get_item:"state" %}
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="{{ value }}" name="state"
+                {% if value in active_filters|get_item:"state" %}checked{% endif %}>
+              {{ value }} ({{ count }})
+            </label>
+          {% endfor %}
+        </div>
+         <button class="apply-filter-btn" data-field="state">Apply</button>
+      </div>
+    </th>
+
+    {% comment %} COUNTRY {% endcomment %}
+    <th class="filter-header" data-column="country">
+      <div class="filter-label">Country <span class="filter-indicator">▼</span></div>
+      <div class="filter-dropdown">
+        <div class="filter-search-wrapper">
+          <input type="text" class="filter-search-input" placeholder="Search..." data-field="country">
+        </div>
+        <div class="filter-checkbox-list" data-field="country">
+          {% for value, count in filter_options|get_item:"country" %}
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="{{ value }}" name="country"
+                {% if value in active_filters|get_item:"country" %}checked{% endif %}>
+              {{ value }} ({{ count }})
+            </label>
+          {% endfor %}
+        </div>
+         <button class="apply-filter-btn" data-field="country">Apply</button>
+      </div>
+    </th>
+
+    {% comment %} REGION {% endcomment %}
+    <th class="filter-header" data-column="region">
+      <div class="filter-label">Region <span class="filter-indicator">▼</span></div>
+      <div class="filter-dropdown">
+        <div class="filter-search-wrapper">
+          <input type="text" class="filter-search-input" placeholder="Search..." data-field="region">
+        </div>
+        <div class="filter-checkbox-list" data-field="region">
+          {% for value, count in filter_options|get_item:"region" %}
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="{{ value }}" name="region"
+                {% if value in active_filters|get_item:"region" %}checked{% endif %}>
+              {{ value }} ({{ count }})
+            </label>
+          {% endfor %}
+        </div>
+         <button class="apply-filter-btn" data-field="region">Apply</button>
+      </div>
+    </th>
+
+    {% comment %} ZONE {% endcomment %}
+    <th class="filter-header" data-column="zone">
+      <div class="filter-label">Zone <span class="filter-indicator">▼</span></div>
+      <div class="filter-dropdown">
+        <div class="filter-search-wrapper">
+          <input type="text" class="filter-search-input" placeholder="Search..." data-field="zone">
+        </div>
+        <div class="filter-checkbox-list" data-field="zone">
+          {% for value, count in filter_options|get_item:"zone" %}
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="{{ value }}" name="zone"
+                {% if value in active_filters|get_item:"zone" %}checked{% endif %}>
+              {{ value }} ({{ count }})
+            </label>
+          {% endfor %}
+        </div>
+         <button class="apply-filter-btn" data-field="zone">Apply</button>
+      </div>
+    </th>
+{% comment %} 
+
+    {% comment %} ACCOUNT OWNER {% endcomment %}
+    <th class="filter-header" data-column="account_owner">
+      <div class="filter-label">Account Owner <span class="filter-indicator">▼</span></div>
+      <div class="filter-dropdown">
+        <div class="filter-search-wrapper">
+          <input type="text" class="filter-search-input" placeholder="Search..." data-field="account_owner">
+        </div>
+        <div class="filter-checkbox-list" data-field="account_owner">
+          {% for value, count in filter_options|get_item:"account_owner" %}
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="{{ value }}" name="account_owner"
+                {% if value in active_filters|get_item:"account_owner" %}checked{% endif %}>
+              {{ value }} ({{ count }})
+            </label>
+          {% endfor %}
+        </div>
+         <button class="apply-filter-btn" data-field="account_owner">Apply</button>
+      </div>
+    </th>
+
+    {% comment %} CREATED BY {% endcomment %}
+    <th class="filter-header" data-column="created_by__username">
+  <div class="filter-label">Created By <span class="filter-indicator">▼</span></div>
+  <div class="filter-dropdown">
+    <div class="filter-search-wrapper">
+      <input type="text" class="filter-search-input" placeholder="Search..." data-field="created_by__username">
+    </div>
+    <div class="filter-checkbox-list" data-field="created_by__username">
+      {% for value, count in filter_options|get_item:"created_by__username" %}
+        <label class="filter-checkbox-item">
+          <input type="checkbox" value="{{ value }}" name="created_by__username"
+            {% if value in active_filters|get_item:"created_by__username" %}checked{% endif %}>
+          {{ value }} ({{ count }})
+        </label>
+      {% endfor %}
+    </div>
+     <button class="apply-filter-btn" data-field="created_by__username">Apply</button>
+  </div>
+</th>
+
+
+    {% comment %} CREATED DATE {% endcomment %}
+    <th class="filter-header" data-column="created_date">
+      <div class="filter-label">Created Date <span class="filter-indicator">▼</span></div>
+      <div class="filter-dropdown">
+        <div class="filter-search-wrapper">
+          <input type="text" class="filter-search-input" placeholder="Search..." data-field="created_date">
+        </div>
+        <div class="filter-checkbox-list" data-field="created_date">
+          {% for value, count in filter_options|get_item:"created_date" %}
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="{{ value }}" name="created_date"
+                {% if value in active_filters|get_item:"created_date" %}checked{% endif %}>
+              {{ value }} ({{ count }})
+            </label>
+          {% endfor %}
+        </div>
+         <button class="apply-filter-btn" data-field="created_date">Apply</button>
+      </div>
+    </th>
+
+    {% comment %} LAST MODIFIED BY {% endcomment %}
+    <th class="filter-header" data-column="last_modified_by__username">
+  <div class="filter-label">Last Modified By <span class="filter-indicator">▼</span></div>
+  <div class="filter-dropdown">
+    <div class="filter-search-wrapper">
+      <input type="text" class="filter-search-input" placeholder="Search..." data-field="last_modified_by__username">
+    </div>
+    <div class="filter-checkbox-list" data-field="last_modified_by__username">
+      {% for value, count in filter_options|get_item:"last_modified_by__username" %}
+        <label class="filter-checkbox-item">
+          <input type="checkbox" value="{{ value }}" name="last_modified_by__username"
+            {% if value in active_filters|get_item:"last_modified_by__username" %}checked{% endif %}>
+          {{ value }} ({{ count }})
+        </label>
+      {% endfor %}
+    </div>
+     <button class="apply-filter-btn" data-field="last_modified_by__username">Apply</button>
+  </div>
+</th>
+
+
+    {% comment %} LAST MODIFIED {% endcomment %}
+    <th class="filter-header" data-column="last_modified">
+      <div class="filter-label">Last Modified <span class="filter-indicator">▼</span></div>
+      <div class="filter-dropdown">
+        <div class="filter-search-wrapper">
+          <input type="text" class="filter-search-input" placeholder="Search..." data-field="last_modified">
+        </div>
+        <div class="filter-checkbox-list" data-field="last_modified">
+          {% for value, count in filter_options|get_item:"last_modified" %}
+            <label class="filter-checkbox-item">
+              <input type="checkbox" value="{{ value }}" name="last_modified"
+                {% if value in active_filters|get_item:"last_modified" %}checked{% endif %}>
+              {{ value }} ({{ count }})
+            </label>
+          {% endfor %}
+        </div>
+         <button class="apply-filter-btn" data-field="last_modified">Apply</button>
+      </div>
+    </th>
+
+    <th>Actions</th>
+  </tr>
+</thead>
+
+</thead>
+
+    <tbody>
+        {% for account in accounts %}
+        <tr>
+            <td>
+  {% if account.account_name %}
+    <a href="{% url 'contacts_for_account' account_name=account.account_name %}">
+        {{ account.account_name }}
+    </a>
+  {% else %}
+    —
+  {% endif %}
+</td>
+
+            <td>{{ account.industry|default:"—" }}</td>
+            <td>{{ account.city|default:"—" }}</td>
+            <td>{{ account.state|default:"—" }}</td>
+            <td>{{ account.country|default:"—" }}</td>
+            <td>{{ account.region|default:"—" }}</td>
+            <td>{{ account.zone|default:"—" }}</td>
+            {% comment %} <td>{{ account.description|truncatechars:50|default:"—" }}</td> {% endcomment %}
+            <td>{{ account.account_owner|truncatechars:15|default:"—" }}</td>
+            <td>
+                {% if account.created_by %}
+    {{ account.created_by.get_full_name|default:account.created_by.username }}
+{% else %}
+    —
+{% endif %}
+
+            </td>
+            <td>{{ account.created_date|date:"Y-m-d" }}</td>
+            <td>
+  {% if account.last_modified_by %}
+    {{ account.last_modified_by.get_full_name|default:account.last_modified_by.username }}
+  {% else %}
+    —
+  {% endif %}
+</td>
+            <td>{{ account.last_modified|date:"Y-m-d H:i" }}</td>
+            <td>
+    <div class="action-buttons">
+    <a href="{% url 'update_account_record' account.pk %}?source=preview-accounts" class="btn-small btn-edit">Edit</a>
+    <form method="POST"
+      action="{% url 'delete_account_record' account.pk %}?source=preview-accounts"
+      onsubmit="return checkDeletePermission(event, {% if request.user.is_staff %}true{% else %}false{% endif %})">
+    {% csrf_token %}
+    <button type="submit" class="btn-small btn-delete">Del</button>
+</form>
+</div>
+
+</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="13" class="text-center">No accounts found</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+        <!-- Pagination controls -->
+        <div class="pagination-container">
+            <ul class="pagination">
+                {% if accounts.has_previous %}
+                    <li><a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">&laquo; First</a></li>
+                    <li><a href="?page={{ accounts.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Previous</a></li>
+                {% else %}
+                    <li class="disabled"><span>&laquo; First</span></li>
+                    <li class="disabled"><span>Previous</span></li>
+                {% endif %}
+                
+                {% for i in page_range %}
+                    {% if accounts.number == i %}
+                        <li class="active"><span>{{ i }} <span class="sr-only"></span></span></li>
+                    {% else %}
+                        <li><a href="?page={{ i }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ i }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if accounts.has_next %}
+                    <li><a href="?page={{ accounts.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Next</a></li>
+                    <li><a href="?page={{ accounts.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">Last &raquo;</a></li>
+                {% else %}
+                    <li class="disabled"><span>Next</span></li>
+                    <li class="disabled"><span>Last &raquo;</span></li>
+                {% endif %}
+            </ul>
+            <div class="page-info">
+                Page {{ current_page }} of {{ total_pages }} | Showing {{ accounts|length }} records
+            </div>
+        </div>
+        {% else %}
+            <div class="no-results">
+                <p>No accounts data available.</p>
+            </div>
+        {% endif %}
+
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6;">
+            <a href="{% url 'setup' %}" style="color: #007bff; text-decoration: none; font-weight: bold;">← Back to Setup</a>
+        </div>
+    </div>
+    
+    <!-- Non-Admin Modal -->
+    <div id="nonAdminModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeNonAdminModal()">&times;</span>
+            <h3>Permission Denied</h3>
+            <p>You don't have admin privileges to delete data.</p>
+            <p>Please contact your system administrator if you need this access.</p>
+            <button onclick="closeNonAdminModal()" class="modal-btn">OK</button>
+        </div>
+    </div>
+    
+    <!-- Download Popup Modal -->
+    <div id="downloadModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeDownloadModal()">&times;</span>
+            <h3>Download Request Submitted</h3>
+            <div class="modal-body">
+                <p>Your request to download the CSV file has been sent to the admin for approval.</p>
+                <p>You will receive an email notification once your request is approved or rejected.</p>
+
+                <div class="loader" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Processing your request...</p>
+                </div>
+
+                <div class="success-message" style="display: none;">
+                    <p> Request submitted successfully!</p>
+                </div>
+            </div>
+            <button id="modal-ok-btn" class="modal-btn">OK</button>
+        </div>
+    </div>
+    
+<script>
+// Staff banner fade out
+setTimeout(() => {
+    const banner = document.querySelector('.staff-banner');
+    if (banner) {
+        banner.classList.add('hide');
+        setTimeout(() => banner.remove(), 500);
+    }
+}, 800);
+
+// Search functionality
+document.querySelector('input[name="search"]')?.addEventListener('input', function(e) {
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+        if (this.value.trim().length > 2 || this.value.trim().length === 0) {
+            this.closest('form').submit();
+        }
+    }, 500);
+});
+
+document.querySelectorAll('.apply-filter-btn').forEach(btn => {
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation(); // Prevent dropdown close
+    const field = this.getAttribute('data-field');
+    const checkboxes = document.querySelectorAll(`input[name="${field}"]:checked`);
+    const selectedValues = Array.from(checkboxes).map(cb => cb.value);
+
+    // Store selected filters in a hidden form or update URL (example with form submit)
+    const url = new URL(window.location.href);
+    url.searchParams.delete(field); // Remove previous filters
+
+    selectedValues.forEach(val => {
+      url.searchParams.append(field, val);
+    });
+
+    window.location.href = url.toString(); // Reload with new filters
+  });
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey || e.metaKey) return;
+    if (e.key === '/' && !e.target.matches('input, textarea')) {
+        e.preventDefault();
+        document.querySelector('input[name="search"]')?.focus();
+    }
+    {% if accounts.has_previous %}
+    if (e.key === 'ArrowLeft' && !e.target.matches('input, textarea')) {
+        window.location.href = '?page={{ accounts.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}';
+    }
+    {% endif %}
+    {% if accounts.has_next %}
+    if (e.key === 'ArrowRight' && !e.target.matches('input, textarea')) {
+        window.location.href = '?page={{ accounts.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}';
+    }
+    {% endif %}
+});
+
+
+    // Enhanced Download form handling
+    const downloadForm = document.getElementById('downloadForm');
+    const downloadModal = document.getElementById('downloadModal');
+    const modalLoader = downloadModal?.querySelector('.loader');
+    const modalSuccess = downloadModal?.querySelector('.success-message');
+    
+    if (downloadForm && downloadModal) {
+        downloadForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Show the modal immediately with loading state
+            downloadModal.style.display = 'block';
+            modalLoader.style.display = 'block';
+            modalSuccess.style.display = 'none';
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner"></span> Processing...';
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: new FormData(this),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                });
+
+                // Hide loader and show success message
+                modalLoader.style.display = 'none';
+                modalSuccess.style.display = 'block';
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+            } catch (error) {
+                console.error('Download error:', error);
+                // Update modal to show error message
+                downloadModal.querySelector('.modal-body').innerHTML = `
+                    <p style="color: #dc3545;">❌ Error submitting download request</p>
+                    <p>${error.message}</p>
+                    <p>Please try again or contact support.</p>
+                `;
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+    }
+
+    // Close modal handlers
+    const closeModal = () => {
+        downloadModal.style.display = 'none';
+    };
+    
+    document.querySelector('.close-modal')?.addEventListener('click', closeModal);
+    document.querySelector('#modal-ok-btn')?.addEventListener('click', closeModal);
+    
+    window.addEventListener('click', (event) => {
+        if (event.target === document.getElementById('downloadModal')) {
+            closeModal();
+        }
+    });
+
+    // Delete permission check
+    function checkDeletePermission(event, isStaff) {
+        if (!isStaff) {
+            event.preventDefault();
+            document.getElementById('nonAdminModal').style.display = 'block';
+            return false;
+        }
+        return confirm('Delete this account?');
+    }
+
+    function closeNonAdminModal() {
+        document.getElementById('nonAdminModal').style.display = 'none';
+    }
+
+document.addEventListener("DOMContentLoaded", function () {
+  const headers = document.querySelectorAll(".filter-header");
+
+  headers.forEach(header => {
+    header.addEventListener("click", function (e) {
+      // Close all other dropdowns
+      document.querySelectorAll(".filter-dropdown").forEach(drop => {
+        if (drop !== header.querySelector(".filter-dropdown")) {
+          drop.style.display = "none";
+        }
+      });
+
+      // Toggle the current one
+      const dropdown = header.querySelector(".filter-dropdown");
+      if (dropdown) {
+        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+      }
+
+      e.stopPropagation(); // prevent closing immediately
+    });
+  });
+
+  // Close dropdowns if clicked outside
+  document.addEventListener("click", function () {
+    document.querySelectorAll(".filter-dropdown").forEach(dropdown => {
+      dropdown.style.display = "none";
+    });
+  });
+
+  // Prevent dropdown clicks from closing it
+  document.querySelectorAll(".filter-dropdown").forEach(drop => {
+    drop.addEventListener("click", function (e) {
+      e.stopPropagation();
+    });
+  });
+
+  // Auto-submit filters on change
+  document.querySelectorAll(".filter-multiselect").forEach(select => {
+    select.addEventListener("change", function () {
+      const form = document.createElement("form");
+      form.method = "GET";
+
+      // Rebuild full query from selected filters
+      document.querySelectorAll(".filter-multiselect").forEach(sel => {
+        const field = sel.dataset.field;
+        Array.from(sel.selectedOptions).forEach(opt => {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = field;
+          input.value = opt.value;
+          form.appendChild(input);
+        });
+      });
+
+      // Preserve search query
+      const searchInput = document.querySelector("input[name='search']");
+      if (searchInput && searchInput.value.trim()) {
+        const hiddenSearch = document.createElement("input");
+        hiddenSearch.type = "hidden";
+        hiddenSearch.name = "search";
+        hiddenSearch.value = searchInput.value.trim();
+        form.appendChild(hiddenSearch);
+      }
+
+      document.body.appendChild(form);
+      form.submit();
+    });
+  });
+});
+ // Clear filters button — move OUTSIDE DOMContentLoaded if you already have one
+const clearBtn = document.getElementById("clear-filters-btn");
+if (clearBtn) {
+    clearBtn.addEventListener("click", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.delete("page");
+
+        // Remove all filters except "search"
+        for (const key of Array.from(urlParams.keys())) {
+            if (key !== "search") {
+                urlParams.delete(key);
+            }
+        }
+
+        const baseUrl = window.location.pathname;
+        const newUrl = urlParams.toString() ? `${baseUrl}?${urlParams.toString()}` : baseUrl;
+
+        window.location.href = newUrl;
+    });
+}
+  // Insert this into accounts_preview.html
+
+const choicesInstances = {};
+document.querySelectorAll('.filter-multiselect').forEach(select => {
+    const field = select.dataset.field;
+    let initialized = false;
+
+    select.addEventListener('click', async function () {
+        if (initialized || select.dataset.loaded === "true") return;
+
+        try {
+            const res = await fetch(`/api/filter-options/?field=${field}&model=accountrecord`);
+            if (!res.ok) throw new Error("Failed to fetch");
+
+            const data = await res.json();
+            if (!data.options) throw new Error("No data");
+
+            select.innerHTML = "";
+            data.options.forEach(opt => {
+                const option = document.createElement("option");
+                option.value = opt.value;
+                option.textContent = `${opt.label || opt.value} (${opt.count})`;
+                select.appendChild(option);
+            });
+
+            const choices = new Choices(select, {
+                removeItemButton: true,
+                searchEnabled: true,
+                shouldSort: true,
+                itemSelectText: '',
+                placeholderValue: 'Select...',
+            });
+
+            choicesInstances[field] = choices;
+            initialized = true;
+            select.dataset.loaded = "true";
+
+        } catch (err) {
+            console.error("Dropdown load failed:", err);
+            const option = document.createElement("option");
+            option.textContent = "⚠️ Error loading options";
+            option.disabled = true;
+            select.appendChild(option);
+        }
+    });
+
+    select.addEventListener('change', function () {
+        const url = new URL(window.location);
+        const param = this.name;
+        const values = Array.from(this.selectedOptions).map(opt => opt.value).filter(v => v);
+        url.searchParams.delete(param);
+        if (values.length) url.searchParams.set(param, values.join(','));
+        url.searchParams.delete('page');
+        window.location.href = url.toString();
+    });
+});
+document.querySelectorAll('.filter-search-input').forEach(input => {
+    input.addEventListener('input', function () {
+        const field = this.dataset.field;
+        const filter = this.value.toLowerCase();
+        const items = document.querySelectorAll(`.filter-checkbox-list[data-field="${field}"] .filter-checkbox-item`);
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(filter) ? 'flex' : 'none';
+        });
+    });
+});
+
+</script>
+</body>
+</html>

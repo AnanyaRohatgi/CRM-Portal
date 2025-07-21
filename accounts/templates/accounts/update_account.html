@@ -1,138 +1,421 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Update Account</title>
+  <meta charset="UTF-8">
+  <title>Update Record</title>
+  <!-- CSS for intl-tel-input -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.min.css" />
+
+<!-- JS dependencies -->
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js"></script>
+
+   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: #f9f9f9;
       padding: 40px;
+      color: #212529;
     }
+
     h2 {
-      margin-bottom: 20px;
+      font-size: 24px;
+      margin-bottom: 30px;
+      color: #343a40;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 10px;
     }
+
     form {
-      max-width: 800px;
+      max-width: 1000px;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
+
     .form-row {
       display: flex;
       flex-wrap: wrap;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
+
     .form-group {
       flex: 1 1 45%;
-      margin: 8px;
+      margin: 10px;
     }
+
     label {
+      font-weight: 600;
       display: block;
-      font-weight: bold;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
-    input {
+
+    input, select, textarea {
       width: 100%;
       padding: 8px;
-      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
+
+    input[readonly] {
+      background-color: #f5f5f5;
+      border-color: #ddd;
+      color: #777;
+      cursor: not-allowed;
+    }
+
+    .button-group {
+      margin-top: 30px;
+      display: flex;
+      justify-content: flex-start;
+    }
+
     button {
-      margin-top: 20px;
       padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+      color: white;
     }
   </style>
 </head>
 <body>
-  <h2>Update Account ID: {{ account.contact_id }}</h2>
 
-  <form method="POST">
-    {% csrf_token %}
+<h2>Update {{ source|title }} Record</h2>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>Salutation:</label>
-        <input type="text" name="salutation" value="{{ account.salutation }}">
-      </div>
-      <div class="form-group">
-        <label>First Name:</label>
-        <input type="text" name="first_name" value="{{ account.first_name }}">
-      </div>
-      <div class="form-group">
-        <label>Last Name:</label>
-        <input type="text" name="last_name" value="{{ account.last_name }}">
-      </div>
-      <div class="form-group">
-        <label>Title:</label>
-        <input type="text" name="title" value="{{ account.title }}">
-      </div>
-      <div class="form-group">
-        <label>Mailing Street:</label>
-        <input type="text" name="mailing_street" value="{{ account.mailing_street }}">
-      </div>
-      <div class="form-group">
-        <label>Mailing City:</label>
-        <input type="text" name="mailing_city" value="{{ account.mailing_city }}">
-      </div>
-      <div class="form-group">
-        <label>Mailing State:</label>
-        <input type="text" name="mailing_state" value="{{ account.mailing_state }}">
-      </div>
-      <div class="form-group">
-        <label>Mailing ZIP:</label>
-        <input type="text" name="mailing_zip" value="{{ account.mailing_zip }}">
-      </div>
-      <div class="form-group">
-        <label>Mailing Country:</label>
-        <input type="text" name="mailing_country" value="{{ account.mailing_country }}">
-      </div>
-      <div class="form-group">
-        <label>Phone:</label>
-        <input type="text" name="phone" value="{{ account.phone }}">
-      </div>
-      <div class="form-group">
-        <label>Account Phone:</label>
-        <input type="text" name="account_phone" value="{{ account.account_phone }}">
-      </div>
-      <div class="form-group">
-        <label>Mobile:</label>
-        <input type="text" name="mobile" value="{{ account.mobile }}">
-      </div>
-      <div class="form-group">
-        <label>Fax:</label>
-        <input type="text" name="fax" value="{{ account.fax }}">
-      </div>
-      <div class="form-group">
-        <label>Email:</label>
-        <input type="email" name="email" value="{{ account.email }}">
-      </div>
-      <div class="form-group">
-        <label>Account ID:</label>
-        <input type="text" name="account_id" value="{{ account.account_id }}">
-      </div>
-      <div class="form-group">
-        <label>Account Name:</label>
-        <input type="text" name="account_name" value="{{ account.account_name }}">
-      </div>
-      <div class="form-group">
-        <label>Account Owner:</label>
-        <input type="text" name="account_owner" value="{{ account.account_owner }}">
-      </div>
-      <div class="form-group">
-        <label>Account Owner Alias:</label>
-        <input type="text" name="account_owner_alias" value="{{ account.account_owner_alias }}">
-      </div>
-      <div class="form-group">
-        <label>Salesperson SF ID:</label>
-        <input type="text" name="salesperson_sf_id" value="{{ account.salesperson_sf_id }}">
-      </div>
-      <div class="form-group">
-        <label>Account Created Date:</label>
-        <input type="date" name="account_created_date" value="{{ account.account_created_date|date:'Y-m-d' }}">
-      </div>
-      <div class="form-group">
-        <label>Region:</label>
-        <input type="text" name="region" value="{{ account.region }}">
-      </div>
+<form method="POST" action="?source={{ source }}">
+  {% csrf_token %}
+
+  <!-- Unified Form Fields -->
+  <div class="form-row">
+
+    <div class="form-group">
+      <label>Account Name</label>
+      <input type="text" name="account_name" value="{{ account.account_name }}">
     </div>
 
-    <button type="submit">Save Changes</button>
-    <a href="{% url 'preview' %}"><button type="button">Cancel</button></a>
-  </form>
+    {% if source == "contacts" or source == "contacts_for_accounts" %}
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" name="full_name" value="{% if account.full_name %}{{ account.full_name }}{% else %}{{ account.first_name }} {{ account.last_name }}{% endif %}">
+    </div>
+
+    <div class="form-group">
+      <label>Title</label>
+      <input type="text" name="title" value="{{ account.title }}">
+    </div>
+
+    <div class="form-group">
+      <label>Email ID</label>
+      <input type="email" name="email" value="{{ account.email }}" >
+    </div>
+
+    <div class="form-group">
+  <label for="unified_mobile">Mobile Phone</label>
+  <input type="tel" id="unified_mobile" name="mobile" value="{{ account.mobile|default_if_none:'' }}">
+</div>
+
+<div class="form-group">
+  <label for="unified_altphone">Alternate Phone</label>
+  <input type="tel" id="unified_altphone" name="other_phone" value="{{ account.other_phone }}">
+</div>
+
+
+    {% endif %}
+
+    {% if source == "contacts" or source == "contacts_for_accounts" %}
+    <!-- Organization Level Dropdown (only for contacts) -->
+    <div class="form-group">
+      <label>Organisational Level</label>
+      <select name="organization_level">
+        <option value="">-- Select Level --</option>
+        <option value="CEO/Deputy CEO level" {% if account.organization_level == "CEO/Deputy CEO level" %}selected{% endif %}>CEO/Deputy CEO level</option>
+        <option value="VP level" {% if account.organization_level == "VP level" %}selected{% endif %}>VP level</option>
+        <option value="Senior Management" {% if account.organization_level == "Senior Management" %}selected{% endif %}>Senior Management</option>
+        <option value="Mid Management" {% if account.organization_level == "Mid Management" %}selected{% endif %}>Mid Management</option>
+        <option value="Others" {% if account.organization_level == "Others" %}selected{% endif %}>Others</option>
+      </select>
+    </div>
+
+    <!-- Department Dropdown (only for contacts) -->
+    <div class="form-group">
+      <label>Department</label>
+      <select name="department">
+        <option value="">-- Select Department --</option>
+        <option value="Finance" {% if account.department == "Finance" %}selected{% endif %}>Finance</option>
+        <option value="HR" {% if account.department == "HR" %}selected{% endif %}>HR</option>
+        <option value="IT" {% if account.department == "IT" %}selected{% endif %}>IT</option>
+        <option value="Operations / Logistics / Others" {% if account.department == "Operations / Logistics / Others" %}selected{% endif %}>Operations / Logistics / Others</option>
+        <option value="Sales & Marketing" {% if account.department == "Sales & Marketing" %}selected{% endif %}>Sales & Marketing</option>
+        <option value="Process Management" {% if account.department == "Process Management" %}selected{% endif %}>Process Management</option>
+        <option value="Operations Excellence" {% if account.department == "Operations Excellence" %}selected{% endif %}>Operations Excellence</option>
+        <option value="Compliance Management" {% if account.department == "Compliance Management" %}selected{% endif %}>Compliance Management</option>
+        <option value="General Management" {% if account.department == "General Management" %}selected{% endif %}>General Management</option>
+      </select>
+    </div>
+    {% endif %}
+
+    <!-- Industry Dropdown -->
+    <div class="form-group">
+      <label for="industry">Industry</label>
+      <select name="industry" id="industry">
+        <option value="">-- Select Industry --</option>
+        <option value="Aerospace / Maritime" {% if account.industry == "Aerospace / Maritime" %}selected{% endif %}>Aerospace / Maritime</option>
+        <option value="Banking / Finance" {% if account.industry == "Banking / Finance" %}selected{% endif %}>Banking / Finance</option>
+        <option value="Construction / Engg / Real estate" {% if account.industry == "Construction / Engg / Real estate" %}selected{% endif %}>Construction / Engg / Real estate</option>
+        <option value="Consulting" {% if account.industry == "Consulting" %}selected{% endif %}>Consulting</option>
+        <option value="Distribution" {% if account.industry == "Distribution" %}selected{% endif %}>Distribution</option>
+        <option value="Education" {% if account.industry == "Education" %}selected{% endif %}>Education</option>
+        <option value="Energy / Oil / Gas" {% if account.industry == "Energy / Oil / Gas" %}selected{% endif %}>Energy / Oil / Gas</option>
+        <option value="Entertainment / Publishing / Media" {% if account.industry == "Entertainment / Publishing / Media" %}selected{% endif %}>Entertainment / Publishing / Media</option>
+        <option value="F&B" {% if account.industry == "F&B" %}selected{% endif %}>F&B</option>
+        <option value="Government" {% if account.industry == "Government" %}selected{% endif %}>Government</option>
+        <option value="Healthcare / Pharma" {% if account.industry == "Healthcare / Pharma" %}selected{% endif %}>Healthcare / Pharma</option>
+        <option value="Hospitality" {% if account.industry == "Hospitality" %}selected{% endif %}>Hospitality</option>
+        <option value="Insurance" {% if account.industry == "Insurance" %}selected{% endif %}>Insurance</option>
+        <option value="IT" {% if account.industry == "IT" %}selected{% endif %}>IT</option>
+        <option value="Logistics/Transportation" {% if account.industry == "Logistics/Transportation" %}selected{% endif %}>Logistics/Transportation</option>
+        <option value="Manufacturing" {% if account.industry == "Manufacturing" %}selected{% endif %}>Manufacturing</option>
+        <option value="Services/Agri/Commodities" {% if account.industry == "Services/Agri/Commodities" %}selected{% endif %}>Services/Agri/Commodities</option>
+        <option value="Telecom" {% if account.industry == "Telecom" %}selected{% endif %}>Telecom</option>
+      </select>
+    </div>
+
+    {% if source == "contacts" or source == "contacts_for_accounts" %}
+    <!-- Contact-specific address fields -->
+     <div class="form-group">
+    <label>Country</label>
+    <input type="contacts_country" name="contacts_country" value="{{ account.contacts_country }}" >
+</div>
+
+    <div class="form-group">
+    <label>State</label>
+    <input type="contacts_state" name="contacts_state" value="{{ account.contacts_state }}" >
+</div>
+    
+    <div class="form-group">
+    <label>City</label>
+    <input type="contacts_city" name="contacts_city" value="{{ account.contacts_city }}" >
+</div>
+
+    {% else %}
+    <!-- Account-specific address fields -->
+   <div class="form-group">
+    <label>Country</label>
+    <input type="country" name="account_country" value="{{ account.country }}" >
+</div>
+    
+   <div class="form-group">
+    <label>State</label>
+    <input type="state" name="account_state" value="{{ account.state }}" >
+</div>
+
+   <div class="form-group">
+    <label>City</label>
+    <input type="city" name="account_city" value="{{ account.city }}" >
+</div>
+    {% endif %}
+
+    <div class="form-group">
+      <label for="region">Region</label>
+     <select name="region" id="region">
+  <option value="India" {% if account.region|lower == "india" %}selected{% endif %}>India</option>
+  <option value="Singapore" {% if account.region|lower == "singapore" %}selected{% endif %}>Singapore</option>
+  <option value="International" {% if account.region|lower == "international" %}selected{% endif %}>International</option>
+</select>
+
+    </div>
+
+    <div class="form-group">
+      <label for="zone">Zone</label>
+      <select name="zone" id="zone">
+        <option value="">-- Select Zone --</option>
+        <option value="WEST" {% if account.zone == "WEST" %}selected{% endif %}>WEST</option>
+        <option value="SOUTH" {% if account.zone == "SOUTH" %}selected{% endif %}>SOUTH</option>
+        <option value="NORTH" {% if account.zone == "NORTH" %}selected{% endif %}>NORTH</option>
+        <option value="SINGAPORE" {% if account.zone == "SINGAPORE" %}selected{% endif %}>SINGAPORE</option>
+        <option value="EAST" {% if account.zone == "EAST" %}selected{% endif %}>EAST</option>
+        <option value="INTERNATIONAL" {% if account.zone == "INTERNATIONAL" %}selected{% endif %}>INTERNATIONAL</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="account_owner">Account Owner</label>
+      <select name="account_owner" id="account_owner">
+        <option value="">-- Select Owner --</option>
+        <option value="Hitesh Gupta" {% if account.account_owner == "Hitesh Gupta" %}selected{% endif %}>Hitesh Gupta</option>
+        <option value="Ashish Chopra" {% if account.account_owner == "Ashish Chopra" %}selected{% endif %}>Ashish Chopra</option>
+        <option value="Vinay Sharma" {% if account.account_owner == "Vinay Sharma" %}selected{% endif %}>Vinay Sharma</option>
+        <option value="Chandan Roy" {% if account.account_owner == "Chandan Roy" %}selected{% endif %}>Chandan Roy</option>
+        <option value="Nikhil Chopra" {% if account.account_owner == "Nikhil Chopra" %}selected{% endif %}>Nikhil Chopra</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Created by</label>
+      <input type="text" value="{% if account.created_by %}{{ account.created_by.get_full_name|default:account.created_by.username }}{% else %}Unknown{% endif %}" readonly>
+    </div>
+
+    <div class="form-group">
+      <label>Created Date</label>
+      <input type="text" value="{{ account.created_date|date:'Y-m-d' }}" readonly>
+    </div>
+
+    <div class="form-group">
+      <label>Last Modified by</label>
+      <input type="text" value="{% if account.last_modified_by %}{{ account.last_modified_by.get_full_name|default:account.last_modified_by.username }}{% else %}Unknown{% endif %}" readonly>
+    </div>
+
+    <div class="form-group">
+      <label>Last Modified</label>
+      <input type="text" value="{{ account.last_modified|date:'Y-m-d H:i' }}" readonly>
+    </div>
+
+    {% if source == "contacts" or source == "contacts_for_accounts" %}
+    <div class="form-group" style="flex: 1 1 100%;">
+      <label>Remarks</label>
+      <textarea name="remarks">{{ account.remarks }}</textarea>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Button Group -->
+  <div class="button-group">
+    <button type="submit" class="btn-primary">Save Changes</button>
+
+    <a href="{% if source == 'preview-accounts' %}{% url 'preview-accounts' %}
+             {% elif source == 'contacts_for_accounts' %}{% url 'contacts_for_account' account_name=account.account_name %}
+             {% else %}{% url 'preview' %}{% endif %}">
+      <button type="button" class="btn-secondary">Cancel</button>
+    </a>
+
+    <!-- {% if request.user.is_staff %}
+    <button type="button" class="btn-danger" onclick="confirmDelete()">Delete</button>
+    {% endif %} -->
+  </div>
+</form>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+  function confirmDelete() {
+    if (confirm('Are you sure you want to delete this record? This action cannot be undone.')) {
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = `{% if source == 'preview-accounts' %}
+                      {% url 'delete_account' account.account_id %}?source=preview-accounts
+                     {% elif source == 'contacts_for_accounts' %}
+                      {% url 'delete_account_record' account.contact_id %}?source=contacts_for_accounts&account_name={{ account.account_name|urlencode }}
+                     {% elif source == 'contacts' %}
+                      {% url 'delete_account' account.contact_id %}?source=contacts
+                     {% else %}
+                      #
+                     {% endif %}`;
+
+      const csrf = document.createElement('input');
+      csrf.type = 'hidden';
+      csrf.name = 'csrfmiddlewaretoken';
+      csrf.value = '{{ csrf_token }}';
+      form.appendChild(csrf);
+
+      document.body.appendChild(form);
+      form.submit();
+    }
+  }
+  {% if email_error %}
+    window.onload = function () {
+      const toast = document.createElement('div');
+      toast.innerText = "{{ email_error }}";
+      toast.style.position = 'fixed';
+      toast.style.bottom = '30px';
+      toast.style.right = '30px';
+      toast.style.backgroundColor = '#dc3545';  // red
+      toast.style.color = '#fff';
+      toast.style.padding = '12px 20px';
+      toast.style.borderRadius = '5px';
+      toast.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+      toast.style.zIndex = '9999';
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, 4000);
+    };
+  {% endif %}
+
+    // Phone number initialization
+    const mobileInput = document.getElementById("unified_mobile");
+    const altInput = document.getElementById("unified_altphone");
+
+    // Initialize for Mobile Phone
+    window.itiMobile = window.intlTelInput(mobileInput, {
+        initialCountry: "auto",
+        geoIpLookup: function(callback) {
+            fetch("https://ipapi.co/json")
+                .then(res => res.json())
+                .then(data => callback(data.country_code))
+                .catch(() => callback("us"));
+        },
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js"
+    });
+
+    // Initialize for Alternate Phone
+    window.itiAlt = window.intlTelInput(altInput, {
+        initialCountry: "auto",
+        geoIpLookup: function(callback) {
+            fetch("https://ipapi.co/json")
+                .then(res => res.json())
+                .then(data => callback(data.country_code))
+                .catch(() => callback("us"));
+        },
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js"
+    });
+
+    // On form submit: convert both to international format
+    const form = document.querySelector("form");
+    form.addEventListener("submit", function (e) {
+        const email = document.querySelector('input[name="email"]');
+        const mobileValid = window.itiMobile && itiMobile.isValidNumber();
+        const emailFilled = email && email.value.trim() !== "";
+
+        // Validation: Require at least one of email or valid mobile
+        if (!emailFilled && !mobileValid) {
+            e.preventDefault(); // Stop form submission
+            alert("Please provide at least a valid email address or mobile number.");
+            if (email) email.focus();
+            return;
+        }
+
+        // If mobile is valid, set it in international format
+        if (mobileValid) {
+            mobileInput.value = itiMobile.getNumber();
+        }
+
+        // If alternate phone is valid, format it too
+        if (window.itiAlt && itiAlt.isValidNumber()) {
+            altInput.value = itiAlt.getNumber();
+        }
+    });
+
+</script>
+
 </body>
 </html>

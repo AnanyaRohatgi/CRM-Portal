@@ -2,214 +2,334 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Salesforce Data Import UI</title>
-  <link rel="stylesheet" href="{% static 'accounts/setup.css' %}" />
+  <link rel="icon" type="image/png" href="{% static 'accounts/favicon.png' %}">
+  <link rel="stylesheet" href="{% static 'accounts/setup.css' %}">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.min.css" />
 </head>
 <body>
-
   <div class="top-nav">
-    <a href="#" class="nav-button active">Setup</a>
+    <div class="nav-left">
+      <a href="#" class="nav-button active">Setup</a>
+    </div>
+    <div class="nav-right">
+      <form action="{% url 'logout' %}" method="post" class="logout-form">
+        {% csrf_token %}
+        <button type="submit" class="logout-button">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </form>
+    </div>
   </div>
-
 
   <div class="container">
-   <h2 style="margin-bottom: 24px;">Import your Data into IRT CRM Central</h2>
- 
-
-    <div class="sections-wrapper">
-      <div class="section">
-        <h4 class="section-heading">What do you want to do?</h4>
-        <div class="box">
-          <div class="option-group" id="action-buttons">
-            <button class="option" id="addBtn">Add new records</button>
-           <button class="option" id="updateBtn" type="button" onclick="showUpdateDropdown()">Update existing records</button>
-
+    <h2>Add, Update and Import your Data into Icon Customer Database Management System</h2>
+    
+    <!-- Global Preview Buttons -->
+    <div class="global-preview-buttons">
+      <a href="{% url 'preview-accounts' %}" class="preview-button">Preview Accounts</a>
+      <a href="{% url 'preview' %}" class="preview-button">Preview Contacts</a>
           </div>
 
-          <form method="get" id="updateForm" style="display: none; margin-top: 20px;">
-  <label for="accountSelect">Select account to update:</label>
-  <select name="account_id" id="accountSelect" onchange="goToUpdatePage()">
-    <option value="">-- Select Account --</option>
-    {% for acc in accounts %}
-      <option value="{{ acc.pk }}">[{{ acc.contact_id }}] {{ acc.first_name }} {{ acc.last_name }}</option>
-    {% endfor %}
-  </select>
-</form>
+    <div class="sections-wrapper">
+      <!-- Unified Actions Section -->
+      <div class="section unified-section">
+        <h4 class="section-heading">What do you want to do?</h4>
+        <div>
+          <div class="option-group" id="unified-action-buttons">
+            <button class="option" id="unifiedAddBtn" type="button">Add New Accounts/Contacts</button>
+            <button class="option" id="unifiedUpdateBtn" type="button">Update Existing Accounts/Contacts</button>
+          </div>
 
-          <form id="add-records-form" method="post" action="{% url 'setup' %}">
+          <!-- Unified Add Form -->
+<form id="unified-add-form" method="post" action="{% url 'setup' %}" class="hidden-form">
   {% csrf_token %}
-  
-  <div class="form-row">
-    <div class="form-group">
-      <label>Salutation:</label>
-      <select name="salutation">
-        <option value="">Select</option>
-        <option value="MR">MR</option>
-        <option value="MS">MS</option>
-      </select>
-    </div>
-    
-    <div class="form-group">
-      <label>First name:</label>
-      <input type="text" name="first_name">
+  <input type="hidden" name="form_type" value="unified">
+
+  <!-- Section 1: Account Information -->
+  <div class="form-section">
+    <h3 class="section-title">Account Information</h3>
+
+    <div class="form-row">
+      <div class="form-group wide">
+        <label for="unified_account_name">Account Name*</label>
+        <input type="text" name="Account_Name" id="unified_account_name" required>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label>Last name:</label>
-      <input type="text" name="last_name">
-    </div>
-
-    <div class="form-group">
-      <label>Title:</label>
-      <input type="text" name="title">
-    </div>
-  </div>
-
-  <div class="form-row">
-    <div class="form-group">
-      <label>Mailing street:</label>
-      <input type="text" name="mailing_street">
-    </div>
-
-    <div class="form-group">
-      <label>Mailing city:</label>
-      <input type="text" name="mailing_city">
-    </div>
-
-    <div class="form-group">
-      <label>Mailing state:</label>
-      <input type="text" name="mailing_state">
-    </div>
-
-    <div class="form-group">
-      <label>Mailing country:</label>
-      <input type="text" name="mailing_country">
-    </div>
-
-    <div class="form-group">
-      <label>Postal code:</label>
-      <input type="text" name="mailing_zip">
-    </div>
-  </div>
-
-  <div class="form-row">
-    <div class="form-group">
-      <label>Phone No:</label>
-      <input type="text" name="phone">
-    </div>
-
-    <div class="form-group">
-      <label>Account phone:</label>
-      <input type="text" name="account_phone">
-    </div>
-
-    <div class="form-group">
-      <label>Email ID:</label>
-      <input type="email" name="email">
-    </div>
-  </div>
-
-  <div class="form-row">
-    <div class="form-group">
-      <label>Account ID:</label>
-      <input type="text" name="account_id">
-    </div>
-
-    <div class="form-group">
-      <label>FAX:</label>
-      <input type="text" name="fax">
-    </div>
-
-    <div class="form-group">
-      <label>Account owner:</label>
-      <input type="text" name="account_owner">
-    </div>
-
-    <div class="form-group">
-      <label>Account owner alias:</label>
-      <input type="text" name="account_owner_alias">
-    </div>
-
-    <div class="form-group">
-      <label>Account name:</label>
-      <input type="text" name="account_name">
-    </div>
-
-
-  <div class="form-row">
-    <div class="form-group">
-      <label>Salesperson SF ID:</label>
-      <input type="text" name="salesperson_sf_id">
-    </div>
-
-       <div class="form-group">
-      <label>Region:</label>
-      <select id="region" name="region" required>
-  <option value="">-- Select Region --</option>
-  <option value="India">India</option>
-  <option value="Singapore">Singapore</option>
-      </select>
-    </div>
-
-    {% comment %}
+    <div class="form-row">
       <div class="form-group">
-        <label>Serial key:</label>
-        <input type="text" name="serial_key">
+        <label for="unified_industry">Industry</label>
+        <select name="Industry" id="unified_industry">
+  <option value="">-- Select Industry --</option>
+  <option value="Aerospace / Maritime">Aerospace / Maritime</option>
+  <option value="Banking / Finance">Banking / Finance</option>
+  <option value="Construction / Engg / Real estate">Construction / Engg / Real estate</option>
+  <option value="Consulting">Consulting</option>
+  <option value="Distribution">Distribution</option>
+  <option value="Education">Education</option>
+  <option value="Energy / Oil / Gas">Energy / Oil / Gas</option>
+  <option value="Entertainment / Publishing / Media">Entertainment / Publishing / Media</option>
+  <option value="F&B">F&B</option>
+  <option value="Government">Government</option>
+  <option value="Healthcare / Pharma">Healthcare / Pharma</option>
+  <option value="Hospitality">Hospitality</option>
+  <option value="Insurance">Insurance</option>
+  <option value="IT">IT</option>
+  <option value="Logistics/Transportation">Logistics/Transportation</option>
+  <option value="Manufacturing">Manufacturing</option>
+  <option value="Services/Agri/Commodities">Services/Agri/Commodities</option>
+  <option value="Telecom">Telecom</option>
+</select>
       </div>
-    {% endcomment %}
+
+      <!-- <div class="form-group">
+        <label for="unified_description">Description</label>
+        <input type="text" name="Description" id="unified_description">
+      </div> -->
+
+      <div class="form-group">
+        <label for="unified_owner">Account Owner</label>
+        <select name="Account Owner" id="unified_owner">
+          <option value="">-- Select Owner --</option>
+          <option>Hitesh Gupta</option>
+          <option>Ashish Chopra</option>
+          <option>Vinay Sharma</option>
+          <option>Chandan Roy</option>
+          <option>Nikhil Chopra</option>
+        </select>
+      </div>
+    </div>
+     <div class="form-row">
+    <div class="form-group">
+      <label for="unified_region">Region*</label>
+      <select name="REGION" id="unified_region" required>
+        <option value="">-- Select Region --</option>
+        <option value="India">India</option>
+        <option value="Singapore">Singapore</option>
+        <option value="International">International</option>
+      </select>
+    </div>
 
     <div class="form-group">
-      <label>Timestamp:</label>
-      <input
-  type="datetime-local"
-  name="last_updated"
-  id="last_updated"
- 
-/>
-   </div>
+      <label for="unified_zone">Zone*</label>
+      <select name="Zone" id="unified_zone">
+        <option value="">-- Select Zone --</option>
+        <option value="WEST">WEST</option>
+        <option value="SOUTH">SOUTH</option>
+        <option value="NORTH">NORTH</option>
+        <option value="SINGAPORE">SINGAPORE</option>
+        <option value="EAST">EAST</option>
+        <option value="INTERNATIONAL">INTERNATIONAL</option>
+        <option value="AUSTRALIA">AUSTRALIA</option>
+        <option value="OTHER">OTHER</option>
+        <option value="MALAYSIA">MALAYSIA</option>
+      </select>
+    </div>
   </div>
-
-     <div class="form-group">
-      <label>Account creation date:</label>
-      <input
-  type="date"
-  name="account_created_date"
-  id="account_created_date"
+    <div class="form-row">
+      <div class="form-group">
+        <label for="unified_mailing_country">Country</label>
+           <input type="mailing_country" name="mailing_country" value="{{ account.mailing_country }}" >
+      </div>
+      <div class="form-group">
+        <label for="unified_mailing_state">State</label>
+        <input type="mailing_state" name="mailing_state" value="{{ account.mailing_state }}" >
+      </div>
+      <div class="form-group">
+        <label for="unified_mailing_city">City</label>
+        <input type="mailing_city" name="mailing_city" value="{{ account.mailing_city }}" >
+      </div>
+    </div>
+ </div>
   
-/>
+
+  <!-- Section 2: Contact Information -->
+  <div class="form-section">
+    <h3 class="section-title">Contact Information</h3>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="unified_fullname">Full Name*</label>
+        <input type="text" name="Full Name" id="unified_fullname" required>
+      </div>
+
+      <div class="form-group">
+        <label for="unified_title">Title</label>
+        <input type="text" name="Title" id="unified_title">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="unified_org_level">Organization Level</label>
+        <select name="OrganizationLevel" id="unified_org_level">
+          <option value="">-- Select Level --</option>
+          <option value="CEO/Deputy CEO level">CEO/Deputy CEO level</option>
+          <option value="VP level">VP level</option>
+          <option value="Senior Management">Senior Management</option>
+          <option value="Mid Management">Mid Management</option>
+          <option value="Others">Others</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="unified_department">Department</label>
+        <select name="Department" id="unified_department">
+          <option value="">-- Select Department --</option>
+          <option value="Finance">Finance</option>
+          <option value="HR">HR</option>
+          <option value="IT">IT</option>
+          <option value="Operations / Logistics / Others">Operations / Logistics / Others</option>
+          <option value="Sales & Marketing">Sales & Marketing</option>
+          <option value="Process Management">Process Management</option>
+          <option value="Operations Excellence">Operations Excellence</option>
+          <option value="Compliance Management">Compliance Management</option>
+          <option value="General Management">General Management</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="unified_email">Email*</label>
+        <input type="email" name="Email" id="unified_email">
+      </div>
+
+      <div class="form-group">
+  <label for="unified_mobile">Mobile Phone</label>
+  <input type="tel" name="MobilePhone" id="unified_mobile" class="phone-input" />
+</div>
+
+
+      <div class="form-group">
+  <label for="unified_altphone">Alternate Phone</label>
+  <input type="tel" name="AlternatePhone" id="unified_altphone" class="phone-input" />
+</div>
+<div class="form-group">
+        <label for="unified_remarks">Remarks</label>
+        <input type="text" name="Remarks" id="unified_remarks">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+  <label for="unified_contacts_country">Contacts Country</label>
+      <input type="contacts_country" name="contacts_country" value="{{ account.contacts_country }}" >
+</div>
+
+<div class="form-group">
+  <label for="unified_contacts_state">Contacts State</label>
+        <input type="contacts_state" name="contacts_state" value="{{ account.contacts_state }}" >
+</div>
+
+<div class="form-group">
+  <label for="contacts_city">Contacts City</label>
+      <input type="contacts_city" name="contacts_city" value="{{ account.contacts_city }}" >
+</div>
+
+    </div>
+
+  <!-- Section 4: Additional Information -->
+  <div class="form-section">
+    <h3 class="section-title">Additional Information</h3>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="unified_created_by">Created By</label>
+        <input type="text" name="CreatedByName" id="unified_created_by"
+               value="{{ request.user.get_full_name|default:request.user.username }}" readonly>
+      </div>
+
+      <div class="form-group">
+        <label for="unified_created_date">Created Date Timestamp</label>
+        <input type="text" name="CreatedDateDisplay" id="unified_created_date" readonly>
+        <input type="hidden" name="CreatedDate" id="unified_created_date_iso">
+      </div>
     </div>
   </div>
 
-  <button type="submit">Submit</button>
+  <!-- Submit Button -->
+  <div class="form-actions">
+    <button type="submit" class="submit-btn">Submit</button>
+  </div>
 </form>
+</div>
+</div>
 
+          <!-- Unified Update Form -->
+          <div id="unified-update-section" class="hidden-form">
+            <div class="autocomplete-wrapper">
+              <label for="unified_search">Search records:</label>
+              <input type="text" id="unified_search" placeholder="Search contacts or accounts" autocomplete="off">
+              <div id="unified_dropdown" class="autocomplete-box"></div>
+            </div>
+
+            <form id="unified-update-form" method="post" action="{% url 'setup' %}" class="hidden-form">
+              {% csrf_token %}
+              <input type="hidden" name="form_type" value="unified_update">
+              <input type="hidden" name="record_type" id="unified_record_type">
+              <input type="hidden" name="record_id" id="unified_record_id">
+              
+              <!-- Fields will be dynamically populated here -->
+              
+              <button type="submit" class="submit-btn">Update</button>
+            </form>
+          </div>
         </div>
-      </div>
+   
+
+    <!-- Bulk Upload Section (Remains unchanged) -->
+    {% if user.is_staff %}
+    <div class="section csv-upload-section">
+      <h4 class="section-heading" style="font-size: 18px; color: #2c3e50; margin-bottom: 10px;">
+        Data Upload Panel
+        <span class="admin-only" style="font-size: 14px; color: #888; font-weight: normal; margin-left: 10px;">
+          (Admin Access Required)
+        </span>
+      </h4>
 
       <form method="post" enctype="multipart/form-data" action="{% url 'setup' %}">
-          {% csrf_token %}
-      <div class="section">
-        <h4 class="section-heading">Where is your data located?</h4>
+        {% csrf_token %}
         <div class="box">
           <div class="upload-box" id="drop-zone">
             <p>Drag CSV file here to upload</p>
           </div>
-          <input type="file" id="file-input" name="csv_file" accept=".csv" style="display: none;" />
+          <input type="file" id="file-input" name="csv_file" accept=".csv">
           <div class="upload-options">
-  <button class="upload-btn" id="csv-upload-btn">📄 CSV</button>
-  <button type="submit" class="upload-btn">⬆️ Upload</button> <!-- 👈 new location -->
-</div>
-
+            <button type="button" class="upload-btn" id="csv-upload-btn">📄 CSV</button>
+            <button type="submit" class="upload-btn">⬆️ Upload</button>
+          </div>
         </div>
-      </div>
+      </form>
     </div>
-    </form>
-    <div class="preview-container">
-      <a href="{% url 'preview' %}" class="preview-button">Preview</a>
+    {% else %}
+    <div class="section csv-upload-section hidden" style="border: 1px solid #ccc; background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 20px;">
+      <h4 style="margin-top: 0; color: #444;">CSV Upload Access</h4>
+      <p style="font-size: 15px; color: #666;">
+        The CSV upload feature is currently restricted to <strong>administrators only</strong>. Please contact your system administrator if you believe you need access.
+      </p>
     </div>
+    {% endif %}
   </div>
+  <div id="django-messages" 
+     data-messages='{% for message in messages %}{{ message|escapejs }}||{{ message.tags }}{% if not forloop.last %}@@{% endif %}{% endfor %}'>
+</div>
+  <script src="{% static 'accounts/setup.js' %}" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script>
+document.addEventListener("DOMContentLoaded", function() {
+  {% if messages %}
+    {% for message in messages %}
+      showToast("{{ message|escapejs }}", "{{ message.tags|default:'info' }}");
+    {% endfor %}
+  {% endif %}
+});
+</script>
 
-  <script src="{% static 'accounts/setup.js' %}"></script>
 </body>
 </html>

@@ -1,375 +1,584 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accounts Preview</title>
-     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        /* Search and controls section */
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .search-form {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .search-form input {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            min-width: 250px;
-        }
-        
-        .search-form button {
-            padding: 8px 16px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .search-form button:hover {
-            background: #0056b3;
-        }
-        
-        .clear-search {
-            padding: 8px 16px;
-            background: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .clear-search:hover {
-            background: #545b62;
-        }
-        
-        /* Stats section */
-        .stats {
-            background: #e9ecef;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .stats strong {
-            color: #495057;
-            font-size: 16px;
-        }
-        
-        /* Table styles */
-        .table-container {
-            overflow-x: auto;
-            margin-bottom: 20px;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 1200px;
-        }
-        
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-            font-size: 13px;
-        }
-        
-        th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        
-        tbody tr:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .email-cell {
-            max-width: 200px;
-            word-break: break-all;
-        }
-        
-        .address-cell {
-            max-width: 150px;
-            word-wrap: break-word;
-        }
-        
-        /* Action buttons */
-        .action-buttons {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .btn-small {
-            padding: 4px 8px;
-            font-size: 12px;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .btn-edit {
-            background: #28a745;
-            color: white;
-        }
-        
-        .btn-delete {
-            background: #dc3545;
-            color: white;
-        }
-        
-        .btn-small:hover {
-            opacity: 0.8;
-        }
-        
-        /* Pagination styles */
-        .pagination-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 30px 0;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .pagination {
-            display: flex;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            gap: 5px;
-        }
-        
-        .pagination li {
-            display: inline;
-        }
-        
-        .pagination a, .pagination span {
-            display: inline-block;
-            padding: 8px 12px;
-            border: 1px solid #dee2e6;
-            color: #007bff;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        .pagination a:hover {
-            background-color: #e9ecef;
-            border-color: #adb5bd;
-        }
-        
-        .pagination .current {
-            background-color: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-        
-        .pagination .disabled {
-            color: #6c757d;
-            background-color: #e9ecef;
-            border-color: #dee2e6;
-            cursor: not-allowed;
-        }
-        
-        .page-info {
-            font-size: 14px;
-            color: #6c757d;
-            margin: 0 15px;
-        }
-        
-        /* Bulk actions */
-        .bulk-actions {
-            margin-bottom: 20px;
-        }
-        
-        .bulk-actions form {
-            display: inline-block;
-            margin-right: 10px;
-        }
-        
-        .bulk-actions button {
-            padding: 10px 20px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .bulk-actions button:hover {
-            background: #c82333;
-        }
-        
-        .download-btn {
-            background: #28a745 !important;
-        }
-        
-        .download-btn:hover {
-            background: #218838 !important;
-        }
-        .filter-header {
-            position: relative;
-            cursor: pointer;
-            padding-right: 20px !important;
-        }
-        
-        .filter-header:hover {
-            background-color: #e0e0e0;
-        }
-        
-        .filter-arrow {
-            position: absolute;
-            right: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 0;
-            height: 0;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-            border-top: 5px solid #666;
-        }
-        
-        .filter-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 10px;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            min-width: 200px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        
-        .filter-dropdown input[type="text"] {
-            width: 100%;
-            padding: 5px;
-            margin-bottom: 5px;
-            box-sizing: border-box;
-        }
-        
-        .filter-dropdown ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .filter-dropdown li {
-            padding: 5px;
-            cursor: pointer;
-        }
-        
-        .filter-dropdown li:hover {
-            background-color: #f0f0f0;
-        }
-        
-        .filter-dropdown li.selected {
-            background-color: #e0e0e0;
-        }
-        
-        .filter-dropdown button {
-            margin-top: 5px;
-            padding: 5px 10px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        
-        .filter-dropdown button:hover {
-            background: #0056b3;
-        }
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .controls {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .search-form {
-                flex-direction: column;
-            }
-            
-            .search-form input {
-                min-width: auto;
-            }
-            
-            .pagination-container {
-                flex-direction: column;
-            }
-            
-            .pagination {
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-        }
-        
-        /* No results message */
-        .no-results {
-            text-align: center;
-            padding: 40px;
-            color: #6c757d;
-            font-size: 16px;
-        }
-        
-        /* Loading indicator */
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #6c757d;
-        }
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
 
-        /* Modal styles */
-  .modal {
+{% block content %}
+<div class="container">
+    {% if user.is_staff %}
+    <div class="staff-banner">
+        ⚙️ You are viewing all regions (Admin Mode)
+    </div>
+    {% endif %}
+
+    <div class="info-banner">
+        <strong>Welcome, {{ user_full_name }}!</strong>
+        <div class="info-details">
+            You have access to: <span class="highlight">{{ allowed_regions|join:", "|title }}</span> region(s)
+            <div class="record-count">Showing {{ total_accounts }} records from your authorized regions</div>
+        </div>
+    </div>
+
+    <h1>Contacts Preview</h1>
+
+    <div class="controls-row">
+        <!-- Search Form -->
+        <div class="search-group">
+            <form class="search-form" method="GET">
+                <input type="text" 
+                       name="search" 
+                       placeholder="Search across the records" 
+                       value="{{ search_query }}"
+                       autocomplete="off">
+                <button type="submit">Search</button>
+                {% if search_query %}
+                    <a href="{% url 'preview' %}" class="clear-search">Clear</a>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-group">
+            <button id="clear-filters-btn" class="btn btn-secondary";">✖ Clear All Filters</button>
+            {% if user.is_staff %}
+    <form id="downloadForm" method="POST" action="{% url 'request_download' %}">
+        {% csrf_token %}
+        <input type="hidden" name="data_type" value="contacts">
+        <input type="hidden" name="page_context" value="contacts_preview">
+        {% for key, value in request.GET.items %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+        {% endfor %}
+        <button type="submit" class="action-btn download-btn">Download CSV</button>
+    </form>
+{% endif %}
+        </div>
+    </div>
+
+    <div class="stats-flex">
+        <div class="stats-text">
+            <strong>
+                {% if search_query %}
+                    Showing {{ accounts|length }} of {{ total_accounts }} contacts (filtered)
+                {% else %}
+                    Total Contacts: {{ total_accounts }}
+                {% endif %}
+            </strong>
+        </div>
+    </div>
+<div id="django-messages" 
+     data-messages='{% for message in messages %}{{ message|escapejs }}||{{ message.tags }}{% if not forloop.last %}@@{% endif %}{% endfor %}'>
+</div>
+
+    <!-- Table -->
+    {% if accounts %}
+    <div class="active-filters" id="activeFiltersContainer">
+    <!-- Badges will be injected here by JS -->
+</div>
+
+    <div class="table-container">
+        <div class="scroll-wrapper">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    {% for field in field_names %}
+  {% if field != "city" and field != "state" and field != "country" %}
+    <th class="filter-header" data-column="{% if field == 'first_name' %}full_name{% else %}{{ field }}{% endif %}">
+      <div class="filter-label">
+        {% if field == "first_name" %}
+          Full Name
+        {% elif field == "timestamp" %}
+          Last Modified Timestamp
+        {% else %}
+          {{ field|title|cut:"_"|add:" " }}
+        {% endif %}
+        <span class="filter-indicator">▼</span>
+      </div>
+
+      <div class="filter-dropdown" style="display: none;">
+        <select name="{% if field == 'first_name' %}full_name{% else %}{{ field }}{% endif %}" 
+        multiple 
+        class="filter-multiselect" 
+        data-field="{% if field == 'first_name' %}full_name{% else %}{{ field }}{% endif %}">
+
+  <option>⏳ Loading...</option>
+</select>
+
+      </div>
+    </th>
+  {% endif %}
+{% endfor %}
+
+                    <!-- <th>Last Modified</th>
+                    <th>Last Modified By</th> -->
+                    <th>Actions</th>
+                </tr>
+                </thead>
+<tbody>
+{% for account in accounts %}
+    <tr>
+        <td>{{ account.account_name|default:"—" }}</td>
+        <td>{{ account.full_name|default:"—" }}</td>
+        <td>{{ account.title|default:"—" }}</td>
+        <td>{{ account.organization_level|default:"—" }}</td>
+        <td>{{ account.department|default:"—" }}</td>
+        <td>{{ account.industry|default:"—" }}</td>
+        <td>{{ account.email|default:"—" }}</td>
+        <td>{{ account.mobile|default:"—" }}</td>
+        <td>{{ account.other_phone|default:"—" }}</td>
+        <td>{{ account.contacts_city|default:"—" }}</td>
+        <td>{{ account.contacts_state|default:"—" }}</td>
+        <td>{{ account.contacts_country|default:"—" }}</td>
+        <td>{{ account.region|default:"—" }}</td>
+        <td>{{ account.zone|default:"—" }}</td>
+        <td>{{ account.account_owner|default:"—" }}</td>
+        <td>
+            {% if account.created_by_user %}
+                {{ account.created_by_user.get_full_name|default:account.created_by_user.username }}
+            {% else %}
+                —
+            {% endif %}
+        </td>
+        <td>{{ account.created_date|date:"Y-m-d" }}</td>
+        <td>
+            {% if account.last_modified_by %}
+                {{ account.last_modified_by.get_full_name|default:account.last_modified_by.username }}
+            {% else %}
+                —
+            {% endif %}
+        </td>
+        <td>{{ account.last_modified|date:"Y-m-d H:i" }}</td>
+        <td>{{ account.remarks|default:"—" }}</td>
+        <td>
+            <div class="action-buttons">
+                <a href="{% url 'update_account' account.pk %}?source=contacts" class="btn-small btn-edit">Edit</a>
+                <form method="POST" 
+                      action="{% url 'delete_account' account.id %}" 
+                      style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-small btn-delete">Del</button>
+                </form>
+            </div>
+        </td>
+    </tr>
+{% endfor %}
+</tbody>
+
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="no-results">
+        {% if search_query %}
+            No contacts found matching "{{ search_query }}". <a href="{% url 'preview' %}">Show all contacts</a>
+        {% else %}
+            No contacts found. <a href="{% url 'setup' %}">Add some contacts</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Pagination -->
+    {% if accounts.paginator.num_pages > 1 %}
+    <div class="pagination-container">
+        <ul class="pagination">
+            {% if accounts.has_previous %}
+                <li><a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">&laquo; First</a></li>
+                <li><a href="?page={{ accounts.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">‹ Prev</a></li>
+            {% else %}
+                <li><span class="disabled">&laquo; First</span></li>
+                <li><span class="disabled">‹ Prev</span></li>
+            {% endif %}
+
+            {% for num in accounts.paginator.page_range %}
+                {% if num == accounts.number %}
+                    <li><span class="current">{{ num }}</span></li>
+                {% elif num > accounts.number|add:'-3' and num < accounts.number|add:'3' %}
+                    <li><a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if accounts.has_next %}
+                <li><a href="?page={{ accounts.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Next ›</a></li>
+                <li><a href="?page={{ accounts.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">Last &raquo;</a></li>
+            {% else %}
+                <li><span class="disabled">Next ›</span></li>
+                <li><span class="disabled">Last &raquo;</span></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Modals -->
+    <div id="nonAdminModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeNonAdminModal()">&times;</span>
+            <h3>Permission Denied</h3>
+            <p>You don't have admin privileges to delete data.</p>
+            <button onclick="closeNonAdminModal()" class="modal-btn">OK</button>
+        </div>
+    </div>
+
+    <div id="downloadModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeDownloadModal()">&times;</span>
+            <h3>Download Request Submitted</h3>
+            <div class="modal-body">
+                <p>Your request to download the CSV file has been sent to the admin for approval.</p>
+                <p>You will receive an email notification once your request is approved or rejected.</p>
+                <div class="loader" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Processing your request...</p>
+                </div>
+                <div class="success-message" style="display: none;">
+                    <p>✅ Request submitted successfully!</p>
+                </div>
+            </div>
+            <button id="modal-ok-btn" class="modal-btn">OK</button>
+        </div>
+    </div>
+
+    <div class="back-link" style="text-align: center; margin-top: 30px;">
+        <a href="/setup/" style="color: #007bff; text-decoration: none; font-weight: bold;">← Back to Setup</a>
+    </div>
+</div>
+
+<style>
+/* === BASE === */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+body, input, button, select, option {
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 14px;
+    color: #333;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* === INFO BANNERS === */
+.info-banner {
+    background-color: #e7f5ff;
+    border-left: 4px solid #4a90e2;
+    padding: 15px;
+    margin-bottom: 25px;
+    border-radius: 0 4px 4px 0;
+    font-size: 14px;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.info-banner strong {
+    color: #2c3e50;
+    font-size: 15px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.info-details {
+    line-height: 1.5;
+}
+
+.highlight {
+    background-color: #d4edff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+}
+
+.staff-banner {
+    background: #fff8e1;
+    border-left: 4px solid #ffc107;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    border-radius: 4px;
+    color: #5a3e00;
+    transition: transform 0.9s ease, opacity 0.5s ease;
+}
+
+.staff-banner.hide {
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* === STATS === */
+.stats-flex {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    font-size: 16px;
+    color: #495057;
+}
+
+/* === CONTROLS ROW === */
+.controls-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.search-group {
+    flex: 1;
+    min-width: 300px;
+}
+
+.search-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-form input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.search-form button,
+.clear-search {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.search-form button { background-color: #007bff; }
+.search-form button:hover { background-color: #0056b3; }
+
+.clear-search { background: #6c757d; }
+.clear-search:hover { background: #545b62; }
+
+.action-group {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+    flex-wrap: wrap;
+}
+.action-group .btn,
+.action-group .action-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    line-height: 1;
+}
+#clear-filters-btn {
+    background-color: #6c757d;
+}
+#clear-filters-btn:hover {
+    background-color: #5a6268;
+}
+
+.download-btn {
+    background-color: #28a745;
+}
+.download-btn:hover {
+    background-color: #218838;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-edit { background: #28a745; }
+.btn-delete { background: #dc3545; }
+
+/* === TABLE === */
+.table-container {
+    overflow-x: auto;
+    overflow-y: visible;
+    position: relative;
+    width: 100%;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1200px;
+}
+
+.data-table th,
+.data-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    font-size: 13px;
+}
+
+.data-table thead th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.data-table tbody tr:hover { background-color: #f8f9fa; }
+
+.email-cell { max-width: 200px; word-break: break-word; }
+.address-cell { max-width: 150px; word-wrap: break-word; }
+.phone-cell { white-space: nowrap; font-family: monospace; font-size: 0.9em; }
+
+ .filter-header {
+  position: relative;
+  cursor: pointer;
+  overflow: visible;
+  vertical-align: top;
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.filter-header.active .filter-indicator { transform: rotate(180deg); }
+
+/* === ENHANCED FILTERS === */
+.filter-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 12px 10px;
+    z-index: 1003;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    display: none;
+    max-height: 320px;
+    overflow-y: auto;
+    min-width: 260px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.filter-dropdown .apply-button {
+    margin-top: 10px;
+    width: 100%;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.2s ease;
+}
+
+.filter-dropdown .apply-button:hover {
+    background-color: #0056b3;
+}
+
+.filter-dropdown option {
+    padding: 6px 8px;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+}
+
+.active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 20px;
+}
+
+.filter-badge {
+    background-color: #e2ecf9;
+    color: #0c2d72;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.05);
+}
+
+.filter-badge .remove-badge {
+    background: transparent;
+    border: none;
+    color: #555;
+    font-size: 14px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.filter-badge .remove-badge:hover {
+    color: #c00;
+}
+
+.choices__list--dropdown,
+.choices__list[role="listbox"] {
+    max-height: 200px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #bbb #f1f1f1;
+}
+
+.choices__list--dropdown::-webkit-scrollbar,
+.choices__list[role="listbox"]::-webkit-scrollbar {
+    width: 6px;
+}
+
+.choices__list--dropdown::-webkit-scrollbar-thumb,
+.choices__list[role="listbox"]::-webkit-scrollbar-thumb {
+    background: #999;
+    border-radius: 3px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    user-select: none;
+}
+
+.checkbox-input {
+    pointer-events: none;
+}
+
+
+/* === MODALS === */
+.modal {
     display: none;
     position: fixed;
     z-index: 1000;
@@ -378,9 +587,9 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.4);
-  }
-  
-  .modal-content {
+}
+
+.modal-content {
     background-color: #fefefe;
     margin: 15% auto;
     padding: 20px;
@@ -389,21 +598,20 @@
     width: 400px;
     max-width: 80%;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  }
-  
-  .close-modal {
+    text-align: center;
+}
+
+.close-modal {
     color: #aaa;
     float: right;
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
-  }
-  
-  .close-modal:hover {
-    color: black;
-  }
-  
-  .modal-btn {
+}
+
+.close-modal:hover { color: black; }
+
+.modal-btn {
     background-color: #007bff;
     color: white;
     border: none;
@@ -411,454 +619,628 @@
     border-radius: 4px;
     cursor: pointer;
     margin-top: 15px;
-  }
-  
-  .modal-btn:hover {
-    background-color: #0056b3;
-  }
-    </style>
-</head>
-<body>
-    <div class="alert alert-info">
-    <strong>Welcome, {{ user_full_name }}!</strong><br>
-    You have access to: <strong>{{ allowed_regions|join:", "|title }}</strong> region(s)<br>
-    Showing {{ total_accounts }} records from your authorized regions.
-</div>
-    <div class="container">
-        <h1>Accounts Preview</h1>
-        
-        <!-- Controls section -->
-        <div class="controls">
-            <form class="search-form" method="GET">
-                <input type="text" 
-                       name="search" 
-                       placeholder="Search by name, email, account, or phone..." 
-                       value="{{ search_query }}"
-                       autocomplete="off">
-                <button type="submit"> Search</button>
-                {% if search_query %}
-                    <a href="{% url 'preview' %}" class="clear-search">Clear</a>
-                {% endif %}
-                <!-- Preserve page parameter if searching -->
-                {% if request.GET.page and not search_query %}
-                    <input type="hidden" name="page" value="{{ request.GET.page }}">
-                {% endif %}
-            </form>
-        </div>
-        
-        <!-- Stats section -->
-        <div class="stats">
-            <strong>
-                {% if search_query %}
-                    Showing {{ accounts|length }} of {{ total_accounts }} accounts (filtered by "{{ search_query }}")
-                {% else %}
-                    Total Accounts: {{ total_accounts }}
-                {% endif %}
-                | Page {{ current_page }} of {{ total_pages }}
-            </strong>
-        </div>
-        
-        <!-- Bulk actions -->
-        <div class="bulk-actions">
-            <form method="POST" action="{% url 'request_download' %}" style="display: inline;">
-                {% csrf_token %}
-                <button type="submit" class="download-btn"> Request CSV Download</button>
-            </form>
-            
-            <form method="POST" action="{% url 'delete_all_accounts' %}" 
-                  onsubmit="return confirm('Are you sure you want to delete ALL accounts? This cannot be undone!')" 
-                  style="display: inline;">
-                {% csrf_token %}
-                <button type="submit"> Delete All Accounts</button>
-            </form>
-        </div>
-        
-        <!-- Table -->
-        {% if accounts %}
-             <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-        <th class="filter-header">ID<span class="filter-arrow"></span></th>
-        <th class="filter-header">Name<span class="filter-arrow"></span></th>
-        <th class="filter-header">Title<span class="filter-arrow"></span></th>
-        <th class="filter-header">Email<span class="filter-arrow"></span></th>
-        <th class="filter-header">Phone<span class="filter-arrow"></span></th>
-        <th class="filter-header">Mobile<span class="filter-arrow"></span></th>
-        <th class="filter-header">Created<span class="filter-arrow"></span></th> <!-- Moved here -->
-        <th class="filter-header">City<span class="filter-arrow"></span></th>
-        <th class="filter-header">Region<span class="filter-arrow"></span></th>
-        <th class="filter-header">Account Owner<span class="filter-arrow"></span></th>
-        <th class="filter-header">Account Owner Alias<span class="filter-arrow"></span></th>
-        <th class="filter-header">Salesperson SF ID<span class="filter-arrow"></span></th>
-        <th class="filter-header">Account Name<span class="filter-arrow"></span></th> <!-- Moved down -->
-        <th class="filter-header">Updated<span class="filter-arrow"></span></th>
-        <th>Actions</th>
-    </tr>
-</thead>
-<tbody>
-    {% for account in accounts %}
-    <tr>
-        <td>{{ account.contact_id }}</td>
-        <td>{{ account.salutation }} {{ account.first_name }} {{ account.last_name }}</td>
-        <td class="address-cell">{{ account.title|truncatechars:50 }}</td>
-        <td class="email-cell">{{ account.email|default:"—" }}</td>
-        <td>{{ account.phone|default:"—" }}</td>
-        <td>{{ account.mobile|default:"—" }}</td>
-        <td>{{ account.account_created_date|date:"Y-m-d"|default:"—" }}</td> <!-- Moved here -->
-        <td>{{ account.mailing_city|default:"—" }}</td>
-        <td>{{ account.region|default:"—" }}</td>
-        <td>{{ account.account_owner|truncatechars:30 }}</td>
-        <td>{{ account.account_owner_alias }}</td>
-        <td>{{ account.salesperson_sf_id }}</td>
-        <td class="address-cell">{{ account.account_name|truncatechars:40 }}</td> <!-- Moved down -->
-        <td>{{ account.last_updated|date:"Y-m-d"|default:"—" }}</td>
-        <td>
-            <div class="action-buttons">
-                <a href="{% url 'update_account' account.pk %}" class="btn-small btn-edit">Edit</a>
-                <form method="POST" action="{% url 'delete_account' account.contact_id %}" 
-                      style="display: inline;" 
-                      onsubmit="return confirm('Delete this account?')">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-small btn-delete">Del</button>
-                </form>
-            </div>
-        </td>
-    </tr>
-    {% endfor %}
-</tbody>
+}
 
-                </table>
-            </div>
+.modal-btn:hover { background-color: #0056b3; }
 
-            <!-- PAGINATION SECTION - ADD THIS -->
-            {% if accounts.paginator.num_pages > 1 %}
-                <div class="pagination-container">
-                    <ul class="pagination">
-                        <!-- First page -->
-                        {% if accounts.number > 3 %}
-                            <li><a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">1</a></li>
-                            {% if accounts.number > 4 %}
-                                <li><span class="disabled">...</span></li>
-                            {% endif %}
-                        {% endif %}
-                        
-                        <!-- Previous page -->
-                        {% if accounts.has_previous %}
-                            <li><a href="?page={{ accounts.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">‹ Prev</a></li>
-                        {% else %}
-                            <li><span class="disabled">‹ Prev</span></li>
-                        {% endif %}
-                        
-                        <!-- Page numbers -->
-                        {% for page_num in page_range %}
-                            {% if page_num == accounts.number %}
-                                <li><span class="current">{{ page_num }}</span></li>
-                            {% else %}
-                                <li><a href="?page={{ page_num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ page_num }}</a></li>
-                            {% endif %}
-                        {% endfor %}
-                        
-                        <!-- Next page -->
-                        {% if accounts.has_next %}
-                            <li><a href="?page={{ accounts.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Next ›</a></li>
-                        {% else %}
-                            <li><span class="disabled">Next ›</span></li>
-                        {% endif %}
-                        
-                        <!-- Last page -->
-                        {% if accounts.number < accounts.paginator.num_pages|add:"-2" %}
-                            {% if accounts.number < accounts.paginator.num_pages|add:"-3" %}
-                                <li><span class="disabled">...</span></li>
-                            {% endif %}
-                            <li><a href="?page={{ accounts.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ accounts.paginator.num_pages }}</a></li>
-                        {% endif %}
-                    </ul>
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    margin: 10px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* === PAGINATION === */
+.pagination-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 30px auto 10px auto;
+    width: fit-content;
+    text-align: center;
+    gap: 10px;
+}
+
+.pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.pagination li { display: inline-block; }
+
+.pagination a,
+.pagination span {
+    padding: 6px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #007bff;
+    background-color: #fff;
+}
+
+.pagination .current {
+    background-color: #007bff;
+    color: #fff;
+    font-weight: bold;
+}
+
+.pagination .disabled {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #f8f9fa;
+}
+
+/* === NO RESULTS === */
+.no-results {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+    font-size: 16px;
+}
+
+.filter-header.active {
+    background-color: #eaf2ff;
+    border-bottom: 2px solid #007bff;
+}
+.message-toast {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 15px 25px;
+  background: #333;
+  color: white;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 1000;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  max-width: 400px;
+}
+
+.message-toast.visible {
+  display: flex;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.message-toast.success { background: #4CAF50; }
+.message-toast.error { background: #F44336; }
+.message-toast.warning { background: #FF9800; }
+
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+<script>
+
+window.showToast = function(message, type = 'success') {
+    const maxToasts = 3;
+    const containerId = 'toast-container';
+
+    let container = document.getElementById(containerId);
+    if (!container) {
+        container = document.createElement('div');
+        container.id = containerId;
+        container.style.position = 'fixed';
+        container.style.top = '20px';
+        container.style.right = '20px';
+        container.style.zIndex = '9999';
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column';
+        container.style.gap = '10px';
+        document.body.appendChild(container);
+    }
+
+    while (container.children.length >= maxToasts) {
+        container.removeChild(container.firstChild);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `message-toast ${type} visible`;
+    toast.style.background = type === 'error' ? '#f44336' : (type === 'warning' ? '#ff9800' : '#4CAF50');
+    toast.style.color = 'white';
+    toast.style.padding = '12px 18px';
+    toast.style.borderRadius = '6px';
+    toast.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+    toast.style.transition = 'opacity 0.3s ease';
+    toast.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="flex: 1;">${message}</span>
+            <button class="toast-close" style="margin-left: 12px; background: transparent; border: none; color: white; font-size: 16px; cursor: pointer;">&times;</button>
+        </div>
+    `;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+
+    toast.querySelector('.toast-close').addEventListener('click', () => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    });
+};
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Auto-hide staff banner
+    setTimeout(() => {
+        const banner = document.querySelector('.staff-banner');
+        if (banner) {
+            banner.classList.add('hide');
+            setTimeout(() => banner.remove(), 500);
+        }
+    }, 800);
+
+    const choicesInstances = {};
+    let isUpdatingFilters = false;
+
+    function getCurrentFilters() {
+    const filters = {};
+    
+    // 1. Get filters from active UI selections
+    document.querySelectorAll('.filter-multiselect').forEach(sel => {
+        const field = sel.dataset.field;
+        const values = Array.from(sel.selectedOptions).map(opt => opt.value).filter(Boolean);
+        if (values.length) {
+            filters[field] = values;
+        }
+    });
+
+    // 2. ALSO include filters from URL (critical fix)
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.forEach((val, key) => {
+        if (key !== 'page' && key !== 'search' && !filters[key]) {
+            filters[key] = val.split(',');
+        }
+    });
+
+    return filters;
+}
+
+    async function initializeFilterDropdown(select, field) {
+        const dropdown = select.closest('.filter-dropdown');
+        try {
+            select.innerHTML = `<option disabled selected>⏳ Loading...</option>`;
+            const url = new URL(`/api/filter-options/`, window.location.origin);
+            url.searchParams.set("field", field);
+            url.searchParams.set("model", "account");
+
+            const currentFilters = getCurrentFilters();
+            Object.entries(currentFilters).forEach(([f, values]) => {
+                if (f !== field && values.length) {
+                    url.searchParams.set(f, values.join(','));
+                }
+            });
+
+            const res = await fetch(url.toString());
+            const data = await res.json();
+            select.innerHTML = "";
+
+            const currentSelections = Array.from(select.selectedOptions).map(opt => opt.value);
+
+            const fetchedValues = data.options.map(opt => opt.value);
+            const combinedValues = [...new Set([...fetchedValues, ...currentSelections])];
+
+            combinedValues.forEach(val => {
+    const found = data.options.find(opt => opt.value === val);
+    const count = found ? found.count : '—';
+    const label = found ? found.label || val : val;
+
+    const option = document.createElement("option");
+    option.value = val;
+    option.textContent = `${label} (${count})`;
+    option.selected = currentSelections.includes(val);
+    select.appendChild(option);
+});
+
+
+            if (!choicesInstances[field]) {
+                choicesInstances[field] = new Choices(select, {
+                    removeItemButton: true,
+                    searchEnabled: true,
+                    searchPlaceholderValue: 'Search...',
+                    placeholderValue: 'Select...',
+                    renderSelectedChoices: 'never',
+                    itemSelectText: '',
+                    shouldSort: false,
+                    callbackOnCreateTemplates: function (template) {
+                        return {
+                            choice: (classNames, data) => {
+                                return template(`
+                                    <div class="${classNames.item} ${classNames.itemChoice}" 
+                                         data-select-text="" 
+                                         data-choice 
+                                         data-id="${data.id}" 
+                                         data-value="${data.value}" 
+                                         ${data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'aria-selected="false'}">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" class="checkbox-input" ${data.selected ? 'checked' : ''} />
+                                            <span>${data.label}</span>
+                                        </label>
+                                    </div>
+                                `);
+                            }
+                        };
+                    }
+                });
+            }
+
+            if (!dropdown.querySelector('.apply-button')) {
+                const applyBtn = document.createElement('button');
+                applyBtn.className = 'apply-button';
+                applyBtn.innerText = 'Apply';
+                applyBtn.addEventListener('click', applyFilters);
+                dropdown.appendChild(applyBtn);
+            }
+
+        } catch (err) {
+            console.error("Dropdown load failed:", err);
+            select.innerHTML = "<option disabled>⚠️ Error loading</option>";
+        }
+    }
+
+async function updateDependentFilters(currentField = null) {
+    if (isUpdatingFilters) return;
+    isUpdatingFilters = true;
+
+    // 1. Get ALL current filters (including from URL)
+    const currentFilters = getCurrentFilters();
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.forEach((val, key) => {
+        if (key !== 'page' && key !== 'search' && !currentFilters[key]) {
+            currentFilters[key] = val.split(',');
+        }
+    });
+
+    // 2. Update each dropdown (except the one that triggered the change)
+    const updatePromises = [];
+    document.querySelectorAll('.filter-multiselect').forEach(targetSelect => {
+        const targetField = targetSelect.dataset.field;
+        if (targetField === currentField) return;
+
+        updatePromises.push(
+            new Promise(async (resolve) => {
+                const url = new URL('/api/filter-options/', window.location.origin);
+                url.searchParams.set('field', targetField);
+                url.searchParams.set('model', 'account');
+
+                // Include ALL current filters except the target field
+                Object.entries(currentFilters).forEach(([field, values]) => {
+                    if (field !== targetField && values && values.length) {
+                        url.searchParams.set(field, values.join(','));
+                    }
+                });
+
+                try {
+                    console.log('Sending request to:', url.toString(), 
+                'with params:', Object.fromEntries(url.searchParams.entries()));
+                    const res = await fetch(url.toString());
+                    const data = await res.json();
+                     console.log('Received data for', targetField, ':', data.options);
+
+                    if (!data.options) return resolve();
+
+                    const prevSelected = Array.from(targetSelect.selectedOptions).map(opt => opt.value);
+                    const instance = choicesInstances[targetField];
                     
-                    <div class="page-info">
-                        Showing {{ accounts.start_index }}-{{ accounts.end_index }} of {{ accounts.paginator.count }} accounts
-                    </div>
-                </div>
-            {% endif %}
-            <!-- END PAGINATION SECTION -->
+                    if (instance) {
+                        // 3. Update Choices.js dropdown
+                        instance.clearChoices();
+                        instance.setChoices(
+                            data.options.map(opt => ({
+                                value: opt.value,
+                                label: `${opt.value || '—'} (${opt.count})`,
+                                selected: prevSelected.includes(opt.value),
+                                disabled: false
+                            })),
+                            true
+                        );
 
-        {% else %}
-            <div class="no-results">
-                {% if search_query %}
-                    No accounts found matching "{{ search_query }}". <a href="{% url 'preview' %}">Show all accounts</a>
-                {% else %}
-                    No accounts found. <a href="{% url 'setup' %}">Add some accounts</a>
-                {% endif %}
-            </div>
-        {% endif %}
-        
-        <!-- Back to setup -->
-        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6;">
-            <a href="{% url 'setup' %}" style="color: #007bff; text-decoration: none; font-weight: bold;">← Back to Setup</a>
-        </div>
-    </div>
+                        // 4. Preserve any existing selections that might not be in new options
+                        prevSelected.forEach(val => {
+                            if (!data.options.some(opt => opt.value === val)) {
+                                instance.setChoiceByValue(val);
+                            }
+                        });
+                    }
+                    resolve();
+                } catch (error) {
+                    console.error(`Update failed for ${targetField}`, error);
+                    resolve();
+                }
+            })
+        );
+    });
 
-    <div id="downloadModal" class="modal" style="display: none;">
-  <div class="modal-content">
-    <span class="close-modal">&times;</span>
-    <h3>Download Request Sent</h3>
-    <p>Your request to download the CSV file has been sent to the admin for approval.</p>
-    <p>Please wait until your request is approved or rejected. You will receive an email notification.</p>
-    <button id="modal-ok-btn" class="modal-btn">OK</button>
-  </div>
-</div>
+    await Promise.all(updatePromises);
+    isUpdatingFilters = false;
+}
 
-    <script>
-        // YOUR EXISTING JAVASCRIPT REMAINS THE SAME
-        document.querySelector('input[name="search"]').addEventListener('input', function(e) {
+    function applyFilters() {
+        const url = new URL(window.location.href);
+       const existingParams = new URLSearchParams(window.location.search);
+
+// Preserve existing filters except pagination
+existingParams.delete('page');
+
+// Overwrite or update filters
+document.querySelectorAll('.filter-multiselect').forEach(sel => {
+    const field = sel.dataset.field;
+    const selected = Array.from(sel.selectedOptions).map(opt => opt.value).filter(Boolean);
+    if (selected.length) {
+        existingParams.set(field, selected.join(','));
+        updateActiveFilterHeader(field, selected);
+    } else {
+        existingParams.delete(field);  // Remove if unselected
+    }
+});
+
+// Apply all filters without losing previous
+window.location.href = `${window.location.pathname}?${existingParams.toString()}`;
+
+
+        document.querySelectorAll('.filter-multiselect').forEach(sel => {
+            const field = sel.dataset.field;
+            const selected = Array.from(sel.selectedOptions).map(opt => opt.value).filter(Boolean);
+            if (selected.length) {
+                url.searchParams.set(field, selected.join(','));
+                updateActiveFilterHeader(field, selected);
+            }
+        });
+
+        window.location.href = url.toString();
+    }
+
+    function updateActiveFilterHeader(field, selectedValues) {
+        document.querySelectorAll(`.filter-header[data-column="${field}"]`).forEach(header => {
+            header.classList.toggle('active', selectedValues.length > 0);
+        });
+    }
+
+    document.querySelectorAll('.filter-header').forEach(header => {
+        const select = header.querySelector('.filter-multiselect');
+        const field = select?.dataset.field;
+        if (!select || !field) return;
+
+        let initialized = false;
+
+        header.addEventListener('click', async function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            document.querySelectorAll('.filter-dropdown').forEach(d => d.style.display = 'none');
+            document.querySelectorAll('.filter-header').forEach(h => h.classList.remove('active'));
+
+            const dropdown = header.querySelector('.filter-dropdown');
+            const isOpen = dropdown.style.display === 'block';
+
+            if (!isOpen) {
+                dropdown.style.display = 'block';
+                header.classList.add('active');
+
+                if (!initialized && select.dataset.loaded !== "true") {
+                    await initializeFilterDropdown(select, field);
+                    initialized = true;
+                    select.dataset.loaded = "true";
+                }
+            }
+        });
+
+        select.addEventListener('change', function () {
+            if (select.dataset.loaded === "true") {
+                updateDependentFilters(field);
+            }
+        });
+    });
+
+    document.querySelectorAll('.filter-multiselect').forEach(sel => {
+        const field = sel.dataset.field;
+        const selected = Array.from(sel.selectedOptions).map(opt => opt.value);
+        updateActiveFilterHeader(field, selected);
+    });
+
+    const container = document.getElementById('activeFiltersContainer');
+    if (container) {
+        const params = new URLSearchParams(window.location.search);
+        for (const [key, value] of params.entries()) {
+            if (key === 'search' || key === 'page') continue;
+            value.split(',').forEach(val => {
+                const badge = document.createElement('div');
+                badge.className = 'filter-badge';
+                badge.innerHTML = `
+                    ${key}: ${val}
+                    <button class="remove-badge" data-field="${key}" data-value="${val}">&times;</button>
+                `;
+                container.appendChild(badge);
+            });
+        }
+
+        container.addEventListener('click', function (e) {
+            if (e.target.classList.contains('remove-badge')) {
+                const field = e.target.dataset.field;
+                const val = e.target.dataset.value;
+                const url = new URL(window.location.href);
+                const current = url.searchParams.get(field)?.split(',') || [];
+                url.searchParams.set(field, current.filter(v => v !== val).join(','));
+                window.location.href = url.toString();
+            }
+        });
+    }
+
+    document.addEventListener('click', function (e) {
+        const insideDropdown = e.target.closest('.filter-dropdown') || 
+                              e.target.closest('.choices') || 
+                              e.target.closest('.choices__inner') || 
+                              e.target.classList.contains('choices__input');
+        if (!insideDropdown) {
+            document.querySelectorAll('.filter-dropdown').forEach(d => d.style.display = 'none');
+            document.querySelectorAll('.filter-header').forEach(h => h.classList.remove('active'));
+        }
+    });
+
+    document.querySelectorAll('input[type="date"]').forEach(input => {
+        input.addEventListener('change', function () {
+            const url = new URL(window.location);
+            url.searchParams.set(this.name, this.value);
+            url.searchParams.delete('page');
+            window.location.href = url.toString();
+        });
+    });
+
+    const clearBtn = document.getElementById('clear-filters-btn');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function () {
+            Object.values(choicesInstances).forEach(choices => choices.removeActiveItems());
+            document.querySelectorAll('input[type="date"]').forEach(input => input.value = '');
+            const url = new URL(window.location);
+            for (const key of url.searchParams.keys()) {
+                if (key !== 'search') url.searchParams.delete(key);
+            }
+            window.location.href = url.toString();
+        });
+    }
+
+    const searchInput = document.querySelector('input[name="search"]');
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
             clearTimeout(this.searchTimeout);
-            const form = this.closest('form');
             this.searchTimeout = setTimeout(() => {
                 if (this.value.length > 2 || this.value.length === 0) {
-                    // Remove page parameter when searching
-                    const pageInput = form.querySelector('input[name="page"]');
-                    if (pageInput) pageInput.remove();
-                    form.submit();
+                    this.closest('form').submit();
                 }
             }, 500);
         });
-        
-        // Keyboard navigation
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey || e.metaKey) return;
-            
-            switch(e.key) {
-                case 'ArrowLeft':
-                    {% if accounts.has_previous %}
-                        if (!e.target.matches('input, textarea')) {
-                            window.location.href = '?page={{ accounts.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}';
-                        }
-                    {% endif %}
-                    break;
-                case 'ArrowRight':
-                    {% if accounts.has_next %}
-                        if (!e.target.matches('input, textarea')) {
-                            window.location.href = '?page={{ accounts.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}';
-                        }
-                    {% endif %}
-                    break;
-            }
-        });
-        
-        // Focus search box with '/' key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === '/' && !e.target.matches('input, textarea')) {
-                e.preventDefault();
-                document.querySelector('input[name="search"]').focus();
-            }
-        });
-         // Add this new filter functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add filter dropdowns
-            const filterHeaders = document.querySelectorAll('.filter-header');
-            
-            filterHeaders.forEach(header => {
-                const dropdown = document.createElement('div');
-                dropdown.className = 'filter-dropdown';
-                dropdown.style.display = 'none';
-                
-                // Add filter content
-                dropdown.innerHTML = `
-                    <input type="text" placeholder="Search...">
-                    <ul>
-                        <!-- Options will be populated dynamically -->
-                    </ul>
-                    <button class="apply-filter">Apply</button>
-                    <button class="clear-filter">Clear</button>
-                `;
-                
-                header.appendChild(dropdown);
-                
-                // Toggle dropdown
-                header.addEventListener('click', function(e) {
-                    if (e.target.classList.contains('filter-arrow') || e.target === header) {
-                        const isVisible = dropdown.style.display === 'block';
-                        document.querySelectorAll('.filter-dropdown').forEach(d => {
-                            d.style.display = 'none';
-                        });
-                        dropdown.style.display = isVisible ? 'none' : 'block';
-                        
-                        if (!isVisible) {
-                            populateFilterOptions(header, dropdown);
-                        }
-                    }
-                });
-            });
-            
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.filter-header')) {
-                    document.querySelectorAll('.filter-dropdown').forEach(d => {
-                        d.style.display = 'none';
-                    });
-                }
-            });
-            
-            // Keyboard shortcut (Ctrl+Shift+L)
-            document.addEventListener('keydown', function(e) {
-                if (e.ctrlKey && e.shiftKey && e.key === 'L') {
-                    e.preventDefault();
-                    const firstFilter = document.querySelector('.filter-header');
-                    if (firstFilter) {
-                        const dropdown = firstFilter.querySelector('.filter-dropdown');
-                        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-                        if (dropdown.style.display === 'block') {
-                            populateFilterOptions(firstFilter, dropdown);
-                        }
-                    }
-                }
-            });
-        });
-        
-        function populateFilterOptions(header, dropdown) {
-            const columnIndex = Array.from(header.parentNode.children).indexOf(header);
-            const table = header.closest('table');
-            const rows = table.querySelectorAll('tbody tr');
-            const uniqueValues = new Set();
-            
-            // Collect unique values from the column
-            rows.forEach(row => {
-                const cell = row.children[columnIndex];
-                let value = cell.textContent.trim();
-                
-                // Special handling for different data types
-                if (columnIndex === 0) { // ID column
-                    value = value || '(blank)';
-                } else if (columnIndex === 12 || columnIndex === 13) { // Date columns
-                    value = value || '(no date)';
-                } else {
-                    value = value || '(empty)';
-                }
-                
-                uniqueValues.add(value);
-            });
-            
-            // Populate the dropdown
-            const ul = dropdown.querySelector('ul');
-            ul.innerHTML = '';
-            
-            Array.from(uniqueValues).sort().forEach(value => {
-                const li = document.createElement('li');
-                li.textContent = value;
-                li.addEventListener('click', function() {
-                    this.classList.toggle('selected');
-                });
-                ul.appendChild(li);
-            });
-            
-            // Search functionality
-            const searchInput = dropdown.querySelector('input[type="text"]');
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                Array.from(ul.children).forEach(li => {
-                    li.style.display = li.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
-                });
-            });
-            
-            // Apply filter
-            dropdown.querySelector('.apply-filter').addEventListener('click', function() {
-                const selectedValues = Array.from(ul.querySelectorAll('.selected')).map(li => li.textContent);
-                applyColumnFilter(columnIndex, selectedValues);
-                dropdown.style.display = 'none';
-            });
-            
-            // Clear filter
-            dropdown.querySelector('.clear-filter').addEventListener('click', function() {
-                clearColumnFilter(columnIndex);
-                dropdown.style.display = 'none';
-            });
-        }
-        
-        function applyColumnFilter(columnIndex, selectedValues) {
-            const table = document.querySelector('table');
-            const rows = table.querySelectorAll('tbody tr');
-            
-            rows.forEach(row => {
-                const cell = row.children[columnIndex];
-                const value = cell.textContent.trim();
-                const displayValue = value || (columnIndex === 0 ? '(blank)' : 
-                                      (columnIndex === 12 || columnIndex === 13 ? '(no date)' : '(empty)'));
-                
-                if (selectedValues.length === 0 || selectedValues.includes(displayValue)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
-        
-        function clearColumnFilter(columnIndex) {
-            const table = document.querySelector('table');
-            const rows = table.querySelectorAll('tbody tr');
-            
-            rows.forEach(row => {
-                row.style.display = '';
-            });
-        }
-
-         document.addEventListener('DOMContentLoaded', function() {
-    const downloadForm = document.querySelector('form[action="{% url 'request_download' %}"]');
-    const modal = document.getElementById('downloadModal');
-    const closeModal = document.querySelector('.close-modal');
-    const okBtn = document.getElementById('modal-ok-btn');
-    
-    if (downloadForm) {
-      downloadForm.addEventListener('submit', function(e) {
-        // Prevent default form submission
-        e.preventDefault();
-        
-        // Show the modal
-        modal.style.display = 'block';
-        
-        // Submit the form in the background
-        fetch(this.action, {
-          method: 'POST',
-          body: new FormData(this),
-          headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-          }
-        })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
-        .then(data => {
-          if (data.success) {
-            // Success - modal already shown
-          } else {
-            // Handle error case if needed
-            console.error('Error submitting download request');
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
-      });
     }
-    
-    // Close modal when clicking X or OK button
-    closeModal.addEventListener('click', function() {
-      modal.style.display = 'none';
+
+    document.addEventListener('keydown', function (e) {
+        if (e.ctrlKey || e.metaKey || e.target.matches('input, textarea')) return;
+        const currentPage = parseInt('{{ accounts.number|default:"1" }}');
+        if (e.key === 'ArrowLeft') {
+            const prev = document.querySelector(`.pagination a[href*="page=${currentPage - 1}"]`);
+            if (prev) window.location.href = prev.href;
+        } else if (e.key === 'ArrowRight') {
+            const next = document.querySelector(`.pagination a[href*="page=${currentPage + 1}"]`);
+            if (next) window.location.href = next.href;
+        } else if (e.key === '/') {
+            const input = document.querySelector('input[name="search"]');
+            if (input) {
+                e.preventDefault();
+                input.focus();
+            }
+        }
     });
-    
-    okBtn.addEventListener('click', function() {
-      modal.style.display = 'none';
+});
+
+    // Download form handling
+    const downloadForm = document.getElementById('downloadForm');
+    const downloadModal = document.getElementById('downloadModal');
+    if (downloadForm && downloadModal) {
+        const loader = downloadModal.querySelector('.loader');
+        const success = downloadModal.querySelector('.success-message');
+        const closeBtn = downloadModal.querySelector('.close-modal');
+        const okBtn = document.getElementById('modal-ok-btn');
+
+        downloadForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            for (const [key, value] of urlParams.entries()) {
+                if (!downloadForm.querySelector(`[name="${key}"]`)) {
+                    const hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = key;
+                    hidden.value = value;
+                    downloadForm.appendChild(hidden);
+                }
+            }
+
+            downloadModal.style.display = 'block';
+            loader.style.display = 'block';
+            success.style.display = 'none';
+
+            const btn = this.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner"></span> Processing...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: new FormData(this),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                });
+
+                if (!response.ok) throw new Error('Request failed');
+                loader.style.display = 'none';
+                success.style.display = 'block';
+
+            } catch (error) {
+                const modalBody = downloadModal.querySelector('.modal-body');
+                modalBody.innerHTML = `
+                    <p style="color: #dc3545;">❌ Error submitting download request</p>
+                    <p>${error.message}</p>
+                    <p>Please try again or contact support.</p>`;
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        const close = () => downloadModal.style.display = 'none';
+        closeBtn?.addEventListener('click', close);
+        okBtn?.addEventListener('click', close);
+        window.addEventListener('click', e => { if (e.target === downloadModal) close(); });
+    }
+
+    // Delete permission check
+    window.checkDeletePermission = function (event, isStaff) {
+        if (!isStaff) {
+            event.preventDefault();
+            document.getElementById('nonAdminModal').style.display = 'block';
+            return false;
+        }
+        return confirm('Delete this contact?');
+    };
+
+    window.closeNonAdminModal = function () {
+        document.getElementById('nonAdminModal').style.display = 'none';
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+    const djangoMsgContainer = document.getElementById("django-messages");
+    if (!djangoMsgContainer) return;
+
+    const raw = djangoMsgContainer.getAttribute("data-messages");
+    if (!raw) return;
+
+    const pairs = raw.split('@@');
+    pairs.forEach(pair => {
+        const [msg, tag] = pair.split('||');
+        if (msg && tag && typeof window.showToast === 'function') {
+            window.showToast(msg, tag);
+        }
     });
-    
-    // Close modal when clicking outside
-    window.addEventListener('click', function(event) {
-      if (event.target === modal) {
-        modal.style.display = 'none';
-      }
-    });
-  });
-    </script>
-</body>
-</html>
+});
+
+
+</script>
+{% endblock %}
