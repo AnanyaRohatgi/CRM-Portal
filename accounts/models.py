@@ -120,9 +120,9 @@ class Account(models.Model):
 class AccountRecord(models.Model):
     account_id = models.CharField(max_length=98, db_column='Account_Id', blank=True, null=True)
     account_name = models.CharField(max_length=400, db_column='Account_Name', verbose_name="Account Name")
-    city = models.CharField(max_length=100, db_column='City', blank=True, null=True, verbose_name="City")
-    state = models.CharField(max_length=100, db_column='State', blank=True, null=True, verbose_name="State")
-    country = models.CharField(max_length=100, db_column='Country', blank=True, null=True, verbose_name="Country")
+    city = models.CharField(max_length=100, blank=True, null=True, verbose_name="City")
+    state = models.CharField(max_length=100,  blank=True, null=True, verbose_name="State")
+    country = models.CharField(max_length=100,  blank=True, null=True, verbose_name="Country")
     industry = models.CharField(max_length=100, db_column='Industry', verbose_name="Industry")
     description = models.TextField(db_column='Description', blank=True, null=True, verbose_name="Description")
     zone = models.CharField(max_length=50, db_column='Zone', blank=True, null=True, verbose_name="Zone")

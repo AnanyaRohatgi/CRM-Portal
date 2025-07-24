@@ -302,9 +302,9 @@ def setup_view(request):
             account_owner = data.get("Account Owner", "").strip()
             region = data.get("REGION", "").strip()
             zone = data.get("Zone", "").strip()
-            mailing_city = data.get("City", "").strip() or data.get("MailingCity", "").strip()
-            mailing_state = data.get("State", "").strip() or data.get("MailingState", "").strip()
-            mailing_country = data.get("Country", "").strip() or data.get("MailingCountry", "").strip()
+            mailing_city = data.get("city", "").strip() or data.get("MailingCity", "").strip() 
+            mailing_state = data.get("state", "").strip() or data.get("MailingState", "").strip()
+            mailing_country = data.get("country", "").strip() or data.get("MailingCountry", "").strip()
             contacts_city = data.get("contacts_city", "").strip()
             contacts_state = data.get("contacts_state", "").strip()
             contacts_country = data.get("contacts_country", "").strip()
@@ -342,9 +342,9 @@ def setup_view(request):
                 'Account Owner': request.POST.get('Account Owner'),
                 'REGION': request.POST.get('REGION'),
                 'Zone': request.POST.get('Zone'),
-                'City': request.POST.get('City'),
-                'State': request.POST.get('State'),
-                'Country': request.POST.get('Country'),
+                'City': request.POST.get('City') or request.POST.get('MailingCity'),
+                'State': request.POST.get('State') or request.POST.get('MailingState'),
+                'Country': request.POST.get('Country') or request.POST.get('MailingCountry'),
                 'contacts_city': request.POST.get('contacts_city'),
                 'contacts_state': request.POST.get('contacts_state'),
                 'contacts_country': request.POST.get('contacts_country'),
@@ -366,26 +366,34 @@ def setup_view(request):
     elif 'form_type' in request.POST and request.POST['form_type'] == 'unified':
         try:
             form_data = {
-                'Full Name': request.POST.get('Fullname'),
-                'Title': request.POST.get('Title'),
-                'OrganizationLevel': request.POST.get('OrganizationLevel'),
-                'Department': request.POST.get('Department'),
-                'Email': request.POST.get('Email'),
-                'MobilePhone': request.POST.get('MobilePhone'),
-                'AlternatePhone': request.POST.get('AlternatePhone'),
-                'Account_Name': request.POST.get('Account_Name'),
-                'Industry': request.POST.get('Industry'),
-                'Description': request.POST.get('Description'),
-                'Account Owner': request.POST.get('Account Owner'),
-                'REGION': request.POST.get('REGION'),
-                'Zone': request.POST.get('Zone'),
-                'City': request.POST.get('MailingCity'),
-                'State': request.POST.get('MailingState'),
-                'Country': request.POST.get('MailingCountry'),
-                'Remarks': request.POST.get('Remarks'),
-                'CreatedByName': request.POST.get('CreatedByName'),
-                'CreatedDate': request.POST.get('CreatedDate'),
-            }
+    'Full Name': request.POST.get('Fullname') or request.POST.get('Full Name'),
+    'Title': request.POST.get('Title'),
+    'OrganizationLevel': request.POST.get('OrganizationLevel'),
+    'Department': request.POST.get('Department'),
+    'Email': request.POST.get('Email'),
+    'MobilePhone': request.POST.get('MobilePhone'),
+    'AlternatePhone': request.POST.get('AlternatePhone'),
+    'Account_Name': request.POST.get('Account_Name'),
+    'Industry': request.POST.get('Industry'),
+    'Description': request.POST.get('Description'),
+    'Account Owner': request.POST.get('Account Owner'),
+    'REGION': request.POST.get('REGION'),
+    'Zone': request.POST.get('Zone'),
+
+    # ✅ FIXED these lines
+    'City': request.POST.get('city'),
+    'State': request.POST.get('state'),
+    'Country': request.POST.get('country'),
+
+    'contacts_city': request.POST.get('contacts_city'),
+    'contacts_state': request.POST.get('contacts_state'),
+    'contacts_country': request.POST.get('contacts_country'),
+
+    'Remarks': request.POST.get('Remarks'),
+    'CreatedByName': request.POST.get('CreatedByName'),
+    'CreatedDate': request.POST.get('CreatedDate'),
+}
+
             contact_success, contact_msg = save_contact(form_data, 0)
             account_success, account_msg = save_account(form_data, 0, request.user)
             if contact_success and account_success:
